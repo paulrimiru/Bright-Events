@@ -1,5 +1,6 @@
 import unittest
-from app import Events, Users
+from app.Events import Events
+from app.Users import Users
 
 class UserTest(unittest.TestCase):
     def setUp(self):
@@ -85,14 +86,20 @@ class TestEvents(unittest.TestCase):
             'rsvp':[]
         }
 
-    def createEvent(self):
+    def testcreateEvent(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
+
+    def testGetUserEvents(self):
+        self.event.create_event(self.event_data)
+        self.assertEqual(1, len(self.event.getEvents()))
+
+        self.assertEqual(1, len(self.event.getUserEvents("test@bright.com")))
     def testDublicateEvent(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.assertEqual("Duplicate event, add with different name",self.event.create_event(self.event_data))
+        self.assertEqual("Duplicate event, choose a different name",self.event.create_event(self.event_data))
     def testDifferentUserSameEventName(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
@@ -109,27 +116,26 @@ class TestEvents(unittest.TestCase):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.event.rsvpEvent('test event', 'test2@bright.com')
-        self.assertIn('test2@bright.com', self.event.getRsvpForEvent('test event'))
+        self.event.rsvpEvent('test@bright.com','test event', 'test2@bright.com')
+        self.assertIn('test2@bright.com', self.event.getRsvpForEvent('test@bright.com','test event'))
     def testDeleteEvent(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.assertEqual(0, self.event.getEvent('test@bright.com','test event'))
+        self.event.deleteEvent('test@bright.com', 'test event')
+        self.assertEqual(0, len(self.event.getUserEvents("test@bright.com")))
     def testEditEvent(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.event_data2 = {
+        event_data2 = {
             'name':'myevent',
             'location':'Nairobi',
             'time':'5/6/2016',
             'creator':'test@bright.com',
             'rsvp':[]
         }
-        result = self.event.getEvent('test@bright.com','test event')
-
-        self.assertEqual('myevent', result.get('name'))
-        
+        self.event.editEvent('test@bright.com', 'test user', event_data2)
+        self.assertIn("myevent", self.event.getUserEvents("test@bright.com"))
 
         
