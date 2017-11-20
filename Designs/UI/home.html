@@ -10,82 +10,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>User Dashboard</title>
+    <title>Home</title>
 </head>
 <body>
     <main>
-    <ul id="options" class="dropdown-content">
-        
-        <li><a href="#">Contacts</a></li>
-        <li><a href="#">About us</a></li>
-        <li class="divider"></li>
-        <li><a href="index.html">Sign out</a></li>
-    </ul>
-    <nav class="nav-extended">
+    <nav>
         <div class="nav-wrapper">
-            <a href="#!" class="brand-logo">Bright Events</a>
-            <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>            
+            <a href="#" class="brand-logo">Bright Events</a>
+            <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-                <li><a href="home.html">Home</a></li>
-                <li><a class="dropdown-button" href="#!" data-activates="options">Options<i class="material-icons right">arrow_drop_down</i></a></li>
-                
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="#">Contacts</a></li>
+                <li><a href="#">About us</a></li>
+                <li><a href="index.html">Logout</a></li>
             </ul>
-            <div class="side-nav" id="mobile-nav">
-                <span class="form-subheader prof-name">Username</span>
-                <ul>
-                    <li><a href="home.html">Home</a></li>
-                    <li><a href="index.html">logout</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">Contacts</a></li>
-                    <li><a href="#">About us</a></li>
-                    <li class="divider"></li>
-    
-                </ul>
-            </div>
-            
+            <ul class="side-nav" id="mobile-nav">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="#">Contacts</a></li>
+                <li><a href="#">About us</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
         </div>
-        <div class="nav-content hide-on-med-and-down">
-            <span class="nav-title">User name</span>
-            </a>
-        </div>
-
     </nav>
-
     <div class="container">
         <div class="row">
-            <div class="col s6">
-                <span class="div-header">My events</span>
-                <ul>
-                    <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                        
-                        <div class="card sticky-action">
-                            <div class="card-image waves-effect waves-block waves-light">
-                            </div>
-                            <div class="card-content">
-                                <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                <p>Event description</p>
-                                <br>
-                                Event location and time
-                            </div>
-                            <div class="card-action">
-                                <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                    <i class="material-icons">delete</i>
-                                </a>
-                                <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                        <i class="material-icons">edit</i>
-                                    </a>
-                                <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                        <i class="material-icons">list</i>
-                                    </a>
-                            </div>
-                            <div class="card-reveal">
-                                <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                <p>More event information.</p>
-                            </div>  
-                        </div>
-                    </li>
-                    <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
+            <div class="col s12">
+                    <ul>
+                        <li id="event-item" data-aos="zoom-in" data-aos-easing="ease-in-sine" data-aos-duration="800">
                             <div class="card sticky-action">
                                 <div class="card-image waves-effect waves-block waves-light">
                                 </div>
@@ -112,7 +63,7 @@
                                 </div>  
                             </div>
                         </li>
-                        <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                        <li id="event-item" data-aos="zoom-in"  data-aos-easing="ease-in-sine" data-aos-duration="800">
                                 <div class="card sticky-action">
                                     <div class="card-image waves-effect waves-block waves-light">
                                     </div>
@@ -139,7 +90,7 @@
                                     </div>  
                                 </div>
                             </li>
-                            <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                            <li id="event-item" data-aos="zoom-in"  data-aos-easing="ease-in-sine" data-aos-duration="800">
                                     <div class="card sticky-action">
                                         <div class="card-image waves-effect waves-block waves-light">
                                         </div>
@@ -166,42 +117,41 @@
                                         </div>  
                                     </div>
                                 </li>
-                </ul>
-                <div class="fixed-action-btn">
-                    <a class="btn-floating btn-large purple darken-1"><i class="material-icons">add</i></a>
-                </div>
-            </div>
-            <div class="col s6 rsvp-div">
-                <span class="div-header">RSVP List</span>
-                <ul>
-                    <li  data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                        <div class="col s12">
-                            <div class="card-panel grey lighten-5 z-depth-1">
-                                <div class="row valign-wrapper">
-
-                                <div class="col s12">
-                                    <div class="row">
-                                        <h4 class="card-title purple-text text-darken-4">User name</h4>
-                                    </div>
-                                    <div class="row">
-                                        <h5 class="black-text">Coming</h5>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                    </ul>
             </div>
         </div>
     </div>
-
+    
 
     </main>
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="js/materialize.min.js"></script>
-<script type="text/javascript" src="js/custom.js"></script>
-<script type="text/javascript" src="js/aos.js"></script>
 
+    <footer class="page-footer">
+        <div class="container">
+        <div class="row">
+            <div class="col l6 s12">
+            <h5 class="white-text">Bright events</h5>
+            <p class="grey-text text-lighten-4">We love new friends, please contact us on info@brightevents.com</p>
+            </div>
+            <div class="col l4 offset-l2 s12">
+            <h5 class="white-text">Links</h5>
+            <ul>
+                <li><a class="grey-text text-lighten-3" href="#!">Contacts</a></li>
+                <li><a class="grey-text text-lighten-3" href="#!">About us</a></li>
+            </ul>
+            </div>
+        </div>
+        </div>
+        <div class="footer-copyright">
+        <div class="container">
+        © 2014 Copyright BrightEvents
+        <a class="grey-text text-lighten-4 right" href="#!">info@brightevents.com</a>
+        </div>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+    <script type="text/javascript" src="js/aos.js"></script>
 </body>
 </html>

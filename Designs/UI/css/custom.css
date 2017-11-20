@@ -61,3 +61,52 @@ box-shadow: 0 1px 0 0 #000;
     padding-left: 50px;
     padding-right: 50px;
 }
+.nav-content{
+    padding-left: 20px;
+    padding-right: 20px;     
+}
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+.page-footer{
+    background-color: #4a148c;
+}
+.prof-img{
+    max-width: 100%;
+    height:auto;
+}
+.prof-name{
+    padding-left: 30px;
+}
+.card-action{
+    color: #4a148c;
+}
+.div-header{
+    color: #4a148c;
+}
+.card-action{
+    align-content: center;
+    align-items: center;
+}
+.rsvp-div{
+    margin-left: 50px;
+}
+#event-item{
+    height: 200px;
+}
+.fixed-action-btn{
+    margin-right: 48px;
+    margin-bottom: 48px;
+}
+li{
+    margin-bottom: 75px;
+}
+body{
+    background-color: #eceff1;
+}     
