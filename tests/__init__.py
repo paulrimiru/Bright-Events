@@ -36,7 +36,6 @@ class UserTest(unittest.TestCase):
         self.assertEqual(1, len(self.user.getUsers()))
 
         result = self.user.getUser("user@bright.com")
-        print(result)
         self.assertIn("user@bright.com", result.get('email'))
 
     def testdeleteuser(self):
@@ -61,7 +60,6 @@ class UserTest(unittest.TestCase):
 
         self.user.updateUser("user@bright.com", new_data)
         result = self.user.getUser("another@email.com")
-        print(result)
         self.assertIn("user tested", result.get('username'))
 
 class TestEvents(unittest.TestCase):
