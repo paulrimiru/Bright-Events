@@ -39,6 +39,3 @@ class TestCategory(unittest.TestCase):
         self.category.updateCategory("test category", self.category_data2)
         self.assertEqual("test category2", self.category.getSingleCategory('test category2').get('name'))
         
-
-
-        

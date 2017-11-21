@@ -50,13 +50,11 @@ class UserTest(unittest.TestCase):
     def testupdateuser(self):
         self.user.addUser(self.user_data)
         self.assertEqual(1, len(self.user.getUsers()))
-        
         new_data = {
             'email':'another@email.com',
             'password':'mypass123',
             'username':'user tested'
         }
-
         self.user.updateUser("user@bright.com", new_data)
         result = self.user.getUser("another@email.com")
         self.assertIn("user tested", result.get('username'))

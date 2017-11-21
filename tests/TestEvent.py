@@ -36,8 +36,6 @@ class TestEvents(unittest.TestCase):
     def testDifferentUserSameEventName(self):
         self.event.create_event(self.event_data)
         self.assertEqual(1, len(self.event.getEvents()))
-
-        
         self.event.create_event(self.event_data2)
         self.assertEqual(2, len(self.event.getEvents()))
     def testGetSingleEvent(self):
