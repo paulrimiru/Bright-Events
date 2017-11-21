@@ -5,7 +5,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/527c959f0b8e4f63b7c0b0daad80957e)](https://www.codacy.com/app/paulrimiru/Bright-Events?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PaulKariukiRimiru/Bright-Events&amp;utm_campaign=Badge_Grade)
 [![Code Health](https://landscape.io/github/PaulKariukiRimiru/Bright-Events/master/landscape.svg?style=flat)](https://landscape.io/github/PaulKariukiRimiru/Bright-Events/master)
 
-
 Bright events provides a platform for event organizers to create and manage different types of events while making them easily accessible to target markets.
 ## Getting Started
 
