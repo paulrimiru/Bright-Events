@@ -6,19 +6,15 @@ class UserTest(unittest.TestCase):
     def setUp(self):
         self.user = Users()
         self.user_data = {
-            "user@email":{
                 'email': 'user@bright.com',
                 'password': 'pass123',
                 'username':'test user'
             }
-        }
         self.user_data2 = {
-            "user2@email":{
                 'email': 'user2@bright.com',
                 'password': 'pass123',
                 'username':'test user'
             }
-        }
 
     def testusercreation(self):
         self.user.addUser(self.user_data)
@@ -28,7 +24,7 @@ class UserTest(unittest.TestCase):
         self.user.addUser(self.user_data)
         self.assertEqual(1, len(self.user.getUsers()))
 
-        self.assertEqual("Dublicate user", self.user.addUser(self.user_data))
+        self.assertEqual("user with that email already exists", self.user.addUser(self.user_data))
     def testmultipleusercreation(self):
         self.user.addUser(self.user_data)
         self.assertEqual(1, len(self.user.getUsers()))
@@ -40,7 +36,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(1, len(self.user.getUsers()))
 
         result = self.user.getUser("user@bright.com")
-
+        print(result)
         self.assertIn("user@bright.com", result.get('email'))
 
     def testdeleteuser(self):
@@ -58,15 +54,15 @@ class UserTest(unittest.TestCase):
         self.assertEqual(1, len(self.user.getUsers()))
         
         new_data = {
-            'email':'user@email.com',
+            'email':'another@email.com',
             'password':'mypass123',
             'username':'user tested'
         }
 
         self.user.updateUser("user@bright.com", new_data)
         result = self.user.getUser("another@email.com")
-        self.assertIn("user@email.com", result.get('email'))
-
+        print(result)
+        self.assertIn("user tested", result.get('username'))
 
 class TestEvents(unittest.TestCase):
     def setUp(self):
