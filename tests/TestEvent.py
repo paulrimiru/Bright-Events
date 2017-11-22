@@ -20,43 +20,48 @@ class TestEvents(unittest.TestCase):
         }
 
     def testcreateEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
 
     def testGetUserEvents(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.assertEqual(1, len(self.event.getUserEvents("test@bright.com")))
+        resp = self.event.getUserEvents("test@bright.com")
+        self.assertTrue(resp.get('success'))
+        self.assertEqual(1, len(resp.get('message')))
     def testDublicateEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.assertEqual("Duplicate event, choose a different name",self.event.create_event(self.event_data))
-    def testDifferentUserSameEventName(self):
-        self.event.create_event(self.event_data)
+        self.assertFalse(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
-        self.event.create_event(self.event_data2)
+    def testDifferentUserSameEventName(self):
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        self.assertEqual(1, len(self.event.getEvents()))
+        self.assertTrue(self.event.create_event(self.event_data2).get('success')) 
         self.assertEqual(2, len(self.event.getEvents()))
     def testGetSingleEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
 
-        self.assertIn('creator', self.event.getEvent('test@bright.com','test event'))
+        resp = self.event.getEvent('test@bright.com','test event')
+        self.assertTrue(resp.get('success'))
+        self.assertIn('creator', resp.get("message"))
     def testRsvpEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
-
-        self.event.rsvpEvent('test@bright.com','test event', 'test2@bright.com')
-        self.assertIn('test2@bright.com', self.event.getRsvpForEvent('test@bright.com','test event'))
+        resp = self.event.rsvpEvent('test@bright.com','test event', 'test2@bright.com')
+        self.assertTrue(resp.get('success'))
+        self.assertIn('test2@bright.com', resp.get('message'))
     def testDeleteEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
-
-        self.event.deleteEvent('test@bright.com', 'test event')
-        self.assertEqual(0, len(self.event.getUserEvents("test@bright.com")))
+        resp = self.event.deleteEvent('test@bright.com', 'test event')
+        self.assertTrue(resp.get('success')) 
+        self.assertEqual(0, len(self.event.getUserEvents("test@bright.com").get('message')))
     def testEditEvent(self):
-        self.event.create_event(self.event_data)
+        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents()))
 
         event_data2 = {
@@ -66,5 +71,6 @@ class TestEvents(unittest.TestCase):
             'creator':'test@bright.com',
             'rsvp':[]
         }
-        self.event.editEvent('test@bright.com', 'test user', event_data2)
-        self.assertIn("myevent", self.event.getUserEvents("test@bright.com"))
+        resp = self.event.editEvent('test@bright.com', 'test user', event_data2)
+        self.assertTrue(resp.get('success')
+        self.assertIn("myevent", self.event.getUserEvents("test@bright.com").get('message'))
