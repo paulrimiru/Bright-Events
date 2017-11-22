@@ -27,7 +27,6 @@ class Categories(object):
             return {'success':False,'message':delresp.get('message')} 
     def getSingleCategory(self, name):
         if name in self.categories_dict:
-            
             return {'success':True,'message':self.categories_dict.get(name)}
         else:
             return {'success':True, 'message':"category not found"}
