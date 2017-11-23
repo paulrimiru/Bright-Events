@@ -3,19 +3,22 @@ class Events(object):
         self.events_dict = {}
     def create_event(self, eventData):
         name = eventData.get('name')
-        creator = eventData.get('creator')
+        if 'creator' in eventData:
+            creator = eventData.get('creator')
 
-        if creator in self.events_dict:
-            if name in self.events_dict.get(creator):
-                return {'success':False, 'message':'Duplicate event, choose a different name'}
+            if creator in self.events_dict:
+                if name in self.events_dict.get(creator):
+                    return {'success':False, 'message':'Duplicate event, choose a different name'}
+                else:
+                    user_events = self.events_dict.get(creator)
+                    user_events.update({name:eventData})
+                    return {'success':True,'message':'Event succesfully added'}
             else:
-                user_events = self.events_dict.get(creator)
-                user_events.update({name:eventData})
-                return {'success':True,'message':'Event succesfully added'}
+                new_event = {creator:{name:eventData}}
+                self.events_dict.update(new_event)
+                return {'success':True,'message':'First Event added, Hurray!!'}
         else:
-            new_event = {creator:{name:eventData}}
-            self.events_dict.update(new_event)
-            return {'success':True,'message':'First Event added, Hurray!!'}
+            return {'success':False, 'message':'no user field provided'}
 
     def getEvents(self):
         return {'success':True, 'message':self.events_dict}

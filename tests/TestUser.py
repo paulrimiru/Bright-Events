@@ -59,3 +59,4 @@ class UserTest(unittest.TestCase):
         self.assertTrue(userresult.get('success'))
         result = self.user.getUser("another@email.com")
         self.assertIn("user tested", result.get('message').get('username'))
+        
