@@ -1,3 +1,6 @@
+"""
+Module contains Category module tests
+"""
 import unittest
 from app.Categories import Categories
 
