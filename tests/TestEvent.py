@@ -48,7 +48,7 @@ class TestEvents(unittest.TestCase):
         resp = self.event.getEvent('test@bright.com','test event')
         print(resp)
         self.assertTrue(resp.get('success'))
-        self.assertIn('creator', resp.get("message").get('test event'))
+        self.assertIn('creator', resp.get("message"))
     def testRsvpEvent(self):
         self.assertTrue(self.event.create_event(self.event_data).get('success')) 
         self.assertEqual(1, len(self.event.getEvents().get('message')))

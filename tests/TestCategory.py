@@ -13,34 +13,34 @@ class TestCategory(unittest.TestCase):
             'description':'test description2'
         }
     def testCreationOfCategory(self):
-        self.assertTrue(self.category.createCategory(self.category_data).get('success')) 
-        self.assertEqual(1, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertEqual(1, len(self.category.getallcategories()))
         
     def testCreationOfDublicateCategory(self):
-        self.assertTrue(self.category.createCategory(self.category_data).get('success')) 
-        self.assertEqual(1, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertEqual(1, len(self.category.getallcategories()))
 
-        resp = self.category.createCategory(self.category_data);
+        resp = self.category.createcategory(self.category_data);
         self.assertFalse(resp.get('success'))
         self.assertEqual("Category already exists", resp.get('message'))
     def testCreationOfMultipleCategories(self):
-        self.assertTrue(self.category.createCategory(self.category_data).get('success')) 
-        self.assertEqual(1, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertEqual(1, len(self.category.getallcategories()))
 
-        self.assertTrue(self.category.createCategory(self.category_data2).get('success')) 
-        self.assertEqual(2, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data2).get('success')) 
+        self.assertEqual(2, len(self.category.getallcategories()))
     def testDeleteCategory(self):
-        self.assertTrue(self.category.createCategory(self.category_data).get('success')) 
-        self.assertEqual(1, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertEqual(1, len(self.category.getallcategories()))
 
-        resp = self.category.deleteCategory("test category")
+        resp = self.category.deletecategory("test category")
         self.assertTrue(resp.get('success'))
-        self.assertEqual(0, len(self.category.getAllCategories()))
+        self.assertEqual(0, len(self.category.getallcategories()))
     def testUpdateCategory(self):
-        self.assertTrue(self.category.createCategory(self.category_data).get('success')) 
-        self.assertEqual(1, len(self.category.getAllCategories()))
+        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertEqual(1, len(self.category.getallcategories()))
 
-        resp = self.category.updateCategory("test category", self.category_data2)
+        resp = self.category.updatecategory("test category", self.category_data2)
         self.assertTrue(resp)
-        self.assertEqual("test category2", self.category.getSingleCategory('test category2').get('message').get('name'))
+        self.assertEqual("test category2", self.category.getsinglecategory('test category2').get('message').get('name'))
         

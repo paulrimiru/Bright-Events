@@ -64,19 +64,19 @@
                                             <h3 class="form-header" data-aos="zoom-in">Welcome</h3>                                                
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                        <input id="username" type="text" class="validate">
+                                                        <input id="username" type="text" class="validate" name="username">
                                                         <label for="username">Username</label>
                                                 </div>
                                             </div>
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input id="email" type="email" class="validate">
+                                                    <input id="email" type="email" class="validate" name="email">
                                                     <label for="email">Email</label>
                                                 </div>
                                             </div>
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input id="password" type="password" class="validate">
+                                                    <input id="password" type="password" class="validate" name="password">
                                                     <label for="password">Password</label>
                                                 </div>
                                             </div>
@@ -88,7 +88,7 @@
                                             </div>
                                             <center>
                                                 <button  class="btn waves-effect waves-light purple darken-4" 
-                                                type="submit" value="submit" data-aos="fade-up">Sign in</button>
+                                                action="/api/auth/register" type="submit" value="submit" data-aos="fade-up">Sign in</button>
                                             </center>
                                         </div>
                                     </form>
