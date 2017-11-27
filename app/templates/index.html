@@ -1,30 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Bright events</title>
-</head>
+{% extends "base.html" %}
 <body>
-    <nav>
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Bright Events</a>
-            <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>
-            <ul class="right hide-on-med-and-down">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Contacts</a></li>
-                <li><a href="#">About us</a></li>
-            </ul>
-            <ul class="side-nav" id="mobile-nav">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Contacts</a></li>
-                <li><a href="#">About us</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }}
+    {% endif %}
+    {% block content %}
     <div class="my-class">
             <div class="container">
                 <div class="row info-container" data-aos="fade-right"  data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="1200">
@@ -53,8 +32,8 @@
                                 </ul>
                             </div>
                             <div class="card-content grey lighten-4">
-                                <div id="signin" class="row">
-                                    <form action="" class="col s12" data-aos="zoom-in">
+                                <div id="signin" class="row" >
+                                    <form action="",method="POST", class="col s12", data-aos="zoom-in">
                                         <div >
                                             <h3 class="form-header" data-aos="zoom-in">Hey there</h3>
                                             <h6 class="form-subheader" data-aos="zoom-in">Glad to have you back</h2>
@@ -73,31 +52,31 @@
                                             </div>
                                             <br>
                                             <center>
-                                                <button class="btn waves-effect waves-light purple darken-4" 
-                                                    type="submit" name="action" data-aos="fade-up">Sign in</button>
+                                                <input class="btn waves-effect waves-light purple darken-4" 
+                                                    type="submit" name="action" data-aos="fade-up">Sign in</input>
                                             </center>
                                         </div>
                                     </form>
                                 </div>
                                 <div id="signup" class="row">
-                                    <form class="col s12">
+                                    <form class="col s12" action="/api/auth/register" method="POST" >
                                         <div >
                                             <h3 class="form-header" data-aos="zoom-in">Welcome</h3>                                                
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                        <input id="last_name" type="text" class="validate">
-                                                        <label for="last_name">Username</label>
+                                                        <input id="username" type="text" class="validate" name="username">
+                                                        <label for="username">Username</label>
                                                 </div>
                                             </div>
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input id="email" type="email" class="validate">
+                                                    <input id="email" type="email" class="validate" name="email">
                                                     <label for="email">Email</label>
                                                 </div>
                                             </div>
                                             <div class="row" data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input id="password" type="password" class="validate">
+                                                    <input id="password" type="password" class="validate" name="password">
                                                     <label for="password">Password</label>
                                                 </div>
                                             </div>
@@ -108,8 +87,8 @@
                                                 </div>
                                             </div>
                                             <center>
-                                                <button class="btn waves-effect waves-light purple darken-4" 
-                                                type="submit" name="action" data-aos="fade-up">Sign in</button>
+                                                <button  class="btn waves-effect waves-light purple darken-4" 
+                                                action="/api/auth/register" type="submit" value="submit" data-aos="fade-up">Sign in</button>
                                             </center>
                                         </div>
                                     </form>
@@ -121,10 +100,6 @@
                 </div>
             </div>
     </div>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="Designs/UI/js/materialize.min.js"></script>
-    <script type="text/javascript" src="Designs/UI/js/custom.js"></script>
-    <script type="text/javascript" src="Designs/UI/js/aos.js"></script>
-    
+    {% endblock %}    
 </body>
 </html>
