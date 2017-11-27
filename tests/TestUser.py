@@ -16,45 +16,47 @@ class UserTest(unittest.TestCase):
             }
 
     def testusercreation(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
     def testdublicateuseraddition(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
-        self.assertEqual("user with that email already exists", self.user.addUser(self.user_data))
+        self.assertFalse(self.user.addUser(self.user_data).get('success')) 
     def testmultipleusercreation(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
-        self.user.addUser(self.user_data2)
-        self.assertEqual(2, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data2).get('success')) 
+        self.assertEqual(2, len(self.user.getUsers().get('message')))
     def testgetsingleuser(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
-        result = self.user.getUser("user@bright.com")
+        result = self.user.getUser("user@bright.com").get('message')
         self.assertIn("user@bright.com", result.get('email'))
 
     def testdeleteuser(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
-        self.user.addUser(self.user_data2)
-        self.assertEqual(2, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data2).get('success')) 
+        self.assertEqual(2, len(self.user.getUsers().get('message')))
 
-        self.user.deleteUser("user@bright.com")
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.deleteUser("user@bright.com").get('success'))
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
 
     def testupdateuser(self):
-        self.user.addUser(self.user_data)
-        self.assertEqual(1, len(self.user.getUsers()))
+        self.assertTrue(self.user.addUser(self.user_data).get('success')) 
+        self.assertEqual(1, len(self.user.getUsers().get('message')))
         new_data = {
             'email':'another@email.com',
             'password':'mypass123',
             'username':'user tested'
         }
-        self.user.updateUser("user@bright.com", new_data)
+        userresult = self.user.updateUser("user@bright.com", new_data)
+        self.assertTrue(userresult.get('success'))
         result = self.user.getUser("another@email.com")
-        self.assertIn("user tested", result.get('username'))
+        self.assertIn("user tested", result.get('message').get('username'))
+        

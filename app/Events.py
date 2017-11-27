@@ -1,56 +1,113 @@
+"""
+Module contains Events model
+"""
 class Events(object):
+    """
+    class contains methods that manipulates event models
+    """
     def __init__(self):
         self.events_dict = {}
     def create_event(self, eventData):
+        """
+        creates events
+        """
         name = eventData.get('name')
-        creator = eventData.get('creator')
+        if eventData.get('creator') and eventData.get('name'):
+            if 'creator' in eventData:
+                creator = eventData.get('creator')
 
-        if creator in self.events_dict:
-            print(self.events_dict.get(creator))
-            if name in self.events_dict.get(creator):
-                return 'Duplicate event, choose a different name'
+                if creator in self.events_dict:
+                    if name in self.events_dict.get(creator):
+                        return {'success':False,
+                                'message':'Duplicate event, choose a different name'}
+                    else:
+                        user_events = self.events_dict.get(creator)
+                        user_events.update({name:eventData})
+                        return {'success':True, 'message':'Event succesfully added'}
+                else:
+                    new_event = {creator:{name:eventData}}
+                    self.events_dict.update(new_event)
+                    return {'success':True, 'message':'First Event added, Hurray!!'}
             else:
-                user_events = self.events_dict.get(creator)
-                user_events.update({name:eventData})
+                return {'success':False, 'message':'no user field provided'}
         else:
-            new_event = {creator:{name:eventData}}
-            self.events_dict.update(new_event)
+            return {'success':False, 
+                    'message':'ensure you have the event name and your email filled'}
 
     def getEvents(self):
-        return self.events_dict;
+        """
+        gets all evennts
+        """
+        return {'success':True, 'message':self.events_dict}
 
     def getUserEvents(self, userEmail):
-        return self.events_dict.get(userEmail)
-
+        """
+        gets a users events
+        """
+        if self.events_dict.get(userEmail):
+            return {'success':True, 'message':self.events_dict.get(userEmail)}
+        else:
+            return {'success':False, 'message':'No events for this user'}
     def deleteEvent(self, userEmail, eventName):
+        """
+        deletes an event
+        """
         if userEmail in self.events_dict:
             if eventName in self.events_dict.get(userEmail):
-                print(self.events_dict)
                 self.events_dict.get(userEmail).pop(eventName)
-                print(self.events_dict)
+                return {'success':True, 'message':'Event deleted'}
             else:
-                return "Event not found"
+                return {'success':False, 'message':'Event not found'}
         else:
-            return "user does not have any events"
+            return {'success':False, 'message':'user does not have any events'}
     def getEvent(self, userEmail, eventName):
-        return self.getUserEvents(userEmail).get(eventName)
+        """
+        gets specific event
+        """
+        resp = self.getUserEvents(userEmail)
+        if resp.get('success'):
+            if resp.get('message').get(eventName):
+                return {'success':True, 'message':resp.get('message').get(eventName)}
+            else:
+                return {'success':False, 'message':'event does not exist'}
+        else:
+            return {'success':False, 'message':resp.get('message')}
     def editEvent(self, userEmail, eventName, new_event):
-        self.deleteEvent(userEmail, eventName)
-        self.create_event(new_event)
+        """
+        edits specific event
+        """
+        resp = self.deleteEvent(userEmail, eventName)
+        if resp.get('success'):
+            resp = self.create_event(new_event)
+            if resp.get('success'):
+                return {'success':True, 'message':'Event successfully edited'}
+            else:
+                return {'success':False, 'message':resp.get('message')}
+        else:
+            return {'success':False, 'message':resp.get('message')}
+
     def rsvpEvent(self, userEmail, eventName, clientEmail):
+        """
+        adds rsvpto event
+        """
         if userEmail in self.events_dict:
             if eventName in self.events_dict.get(userEmail):
                 rsvp = self.events_dict.get(userEmail).get(eventName).get('rsvp')
                 rsvp.append(clientEmail)
+                return {'success':True, 'message':rsvp}
             else:
-                return "cannot find the event"
+                return {'success':False, 'message':"cannot find the event"}
         else:
-            return "user does not have any emails"
+            return {'success':False, 'message':"user does not exist"}
     def getRsvpForEvent(self, userEmail, eventName):
+        """
+        gets all the rsvp for event
+        """
         if userEmail in self.events_dict:
             if eventName in self.events_dict.get(userEmail):
-                return self.events_dict.get(userEmail).get(eventName).get('rsvp')
+                resp = self.events_dict.get(userEmail).get(eventName).get('rsvp')
+                return {'success':True, 'message':resp}
             else:
-                return "cannot find the event"
+                return {'success':False, 'message':"cannot find the event"}
         else:
-            return "user does not have any emails"
+            return {'success':False, 'message':'user does not exist'}

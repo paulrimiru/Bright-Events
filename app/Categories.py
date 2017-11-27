@@ -1,23 +1,54 @@
+"""
+This module contails model for event categories
+"""
 class Categories(object):
+    """
+    This is a model for categories
+    """
     def __init__(self):
         self.categories_dict = {}
-    def createCategory(self, category):
+    def createcategory(self, category):
+        """
+        method used to create categories
+        """
         if category.get('name') in self.categories_dict:
-            return "Category already exists"
+            return {'success':False, 'message':"Category already exists"}
         else:
             self.categories_dict.update({category.get('name'): category})
-    def getAllCategories(self):
+            return {'success':True, 'message':'Category created successfully'}
+    def getallcategories(self):
+        """
+        Method used to get all categories
+        """
         return self.categories_dict
-    def deleteCategory(self, name):
+    def deletecategory(self, name):
+        """
+        Method used to delete a category
+        """
         if name in self.categories_dict:
             self.categories_dict.pop(name)
+            return {'success':True, 'message':'Category deleted successfully'}
         else:
-            return "category not found"
-    def updateCategory(self, name, new_category):
-        self.deleteCategory(name)
-        self.createCategory(new_category)
-    def getSingleCategory(self, name):
+            return {'success':False, 'message':'Category not found'}
+    def updatecategory(self, name, new_category):
+        """
+        Method used to delete a category
+        """
+        delresp = self.deletecategory(name)
+        if delresp.get('success'):
+            resp = self.createcategory(new_category)
+            if resp.get('success'):
+                return {'success':True, 'message':"Category update successfully"}
+            else:
+                return {'success':False, 'message':resp.get('message')}
+        else:
+            return {'success':False, 'message':delresp.get('message')}
+    def getsinglecategory(self, name):
+        """
+        method used to retrieve a single category
+        """
         if name in self.categories_dict:
-            return self.categories_dict.get(name)
+            return {'success':True, 'message':self.categories_dict.get(name)}
         else:
-            return "category not found"
+            return {'success':True, 'message':"category not found"}
+        
