@@ -1,6 +1,6 @@
 """
 Code used to initialize the app module
-""" 
+"""
 from flask_api import FlaskAPI
 from flask_restful import Api
 

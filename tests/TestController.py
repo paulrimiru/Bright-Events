@@ -1,7 +1,13 @@
+"""
+Module contains controller tests
+"""
 import unittest
 from app.Controller import Controller
 
 class TestController(unittest.TestCase):
+    """
+    Class contains tests for controller
+    """
     def setUp(self):
         self.controller = Controller()
 
@@ -25,15 +31,24 @@ class TestController(unittest.TestCase):
             'rsvp':[]
         }
     def testRegisterUser(self):
+        """
+        tests user registration
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
     def testLoginUser(self):
+        """
+        tests user login
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
         self.assertTrue(loginres.get("message"))
     def testUserAddEvent(self):
+        """
+        tests ability for user to add events
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -43,9 +58,15 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
     def testAddEventWithoutCreator(self):
+        """
+        tests if an event can be added without a user
+        """
         res = self.controller.addEvent(self.event_data2)
         self.assertFalse(res.get('success'))
     def testUpdateEvent(self):
+        """
+        tests ability for an event to be updated
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -55,6 +76,9 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
     def testRetriverAllEvents(self):
+        """
+        tests rettrieval of all events
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -68,6 +92,9 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
         self.assertListEqual([self.event_data], eventsresp.get('message'))
     def testRetriveEventForCurrentUser(self):
+        """
+        tests retrieval of current users
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -81,6 +108,9 @@ class TestController(unittest.TestCase):
         self.assertTrue(eventsresp.get('success'))
         self.assertListEqual([self.event_data], eventsresp.get('message'))
     def testSaveRsvp(self):
+        """
+        tests addition of rsvp by users
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -94,6 +124,9 @@ class TestController(unittest.TestCase):
         self.assertTrue(rsvp.get('success'))
         self.assertIn('myemail@bright.com', rsvp.get('message'))
     def testRetrieveRsvp(self):
+        """
+        tests rettrieval of rsvp of events
+        """
         resp = self.controller.registerUser(self.userData)
         self.assertTrue(resp.get('success'))
 
@@ -109,4 +142,4 @@ class TestController(unittest.TestCase):
 
         retrive = self.controller.retriveRsvp('user@bright.com', 'test event')
         self.assertIn('myemail@bright.com', retrive.get('message'))
-        
+

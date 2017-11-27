@@ -5,6 +5,9 @@ import unittest
 from app.Categories import Categories
 
 class TestCategory(unittest.TestCase):
+    """
+    contains category model tests
+    """
     def setUp(self):
         self.category = Categories()
         self.category_data = {
@@ -16,23 +19,34 @@ class TestCategory(unittest.TestCase):
             'description':'test description2'
         }
     def testCreationOfCategory(self):
-        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        """
+        tests creation of category
+        """
+        self.assertTrue(self.category.createcategory(self.category_data).get('success'))
         self.assertEqual(1, len(self.category.getallcategories()))
-        
     def testCreationOfDublicateCategory(self):
-        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        """
+        Tests creation of buplicate category
+        """
+        self.assertTrue(self.category.createcategory(self.category_data).get('success'))
         self.assertEqual(1, len(self.category.getallcategories()))
 
-        resp = self.category.createcategory(self.category_data);
+        resp = self.category.createcategory(self.category_data)
         self.assertFalse(resp.get('success'))
         self.assertEqual("Category already exists", resp.get('message'))
     def testCreationOfMultipleCategories(self):
-        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        """
+        Tests creation of multiple categories
+        """
+        self.assertTrue(self.category.createcategory(self.category_data).get('success'))
         self.assertEqual(1, len(self.category.getallcategories()))
 
-        self.assertTrue(self.category.createcategory(self.category_data2).get('success')) 
+        self.assertTrue(self.category.createcategory(self.category_data2).get('success'))
         self.assertEqual(2, len(self.category.getallcategories()))
     def testDeleteCategory(self):
+        """
+        Tests deleteion of categories
+        """
         self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
         self.assertEqual(1, len(self.category.getallcategories()))
 
@@ -40,10 +54,14 @@ class TestCategory(unittest.TestCase):
         self.assertTrue(resp.get('success'))
         self.assertEqual(0, len(self.category.getallcategories()))
     def testUpdateCategory(self):
-        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        """
+        Tests updating of a category
+        """
+        self.assertTrue(self.category.createcategory(self.category_data).get('success'))
         self.assertEqual(1, len(self.category.getallcategories()))
 
         resp = self.category.updatecategory("test category", self.category_data2)
         self.assertTrue(resp)
-        self.assertEqual("test category2", self.category.getsinglecategory('test category2').get('message').get('name'))
-        
+        self.assertEqual("test category2",
+                         self.category.getsinglecategory('test category2')
+                         .get('message').get('name'))

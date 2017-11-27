@@ -39,8 +39,7 @@ class Register(RegisterParams, Resource):
         resp = CONTROLLER.registerUser(user_data)
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 401
+        return resp, 401
 class Authentication(LoginParams, Resource):
     """
     Class contains logic that authenticates the users
@@ -54,8 +53,7 @@ class Authentication(LoginParams, Resource):
             session['signed_in'] = False
 
             return {'success':True, 'message':'user signed out'}
-        else:
-            return {'success':False, 'message':'Try logging in first :-)'}
+        return {'success':False, 'message':'Try logging in first :-)'}
     def post(self):
         """
         Triggered by a post request and logs in the user
@@ -66,8 +64,7 @@ class Authentication(LoginParams, Resource):
             session['user'] = args['email']
             session['signed_in'] = True
             return resp, 201
-        else:
-            return resp, 401
+        return resp, 401
 class ResetPassword(ResetParams, Resource):
     """
     Class contains logic to reset users password
@@ -81,8 +78,7 @@ class ResetPassword(ResetParams, Resource):
         resp = CONTROLLER.resetPassword(args['email'], args['password'])
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 401
+        return resp, 401
 
 class CreateEvent(EventParams, Resource):
     """
@@ -96,8 +92,7 @@ class CreateEvent(EventParams, Resource):
         resp = CONTROLLER.retrieveAllEvents()
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 401
+        return resp, 401
     @auth_required
     def post(self):
         """
@@ -114,8 +109,7 @@ class CreateEvent(EventParams, Resource):
         resp = CONTROLLER.addEvent(event_data)
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 401
+        return resp, 401
 class Event(Resource):
     """
     Class contains logic vto retrieveeingle events and delete events
@@ -128,8 +122,7 @@ class Event(Resource):
         resp = CONTROLLER.retriveSingelEvent(session['user'], eventId)
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 409
+        return resp, 409
     @auth_required
     def delete(self, eventId):
         """
@@ -138,8 +131,7 @@ class Event(Resource):
         resp = CONTROLLER.deleteSingleEvent(session['user'], eventId)
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 409
+        return resp, 409
 class Rsvp(RsvpParams, Resource):
     """
     Class manipulates Rsvp of events
@@ -153,8 +145,7 @@ class Rsvp(RsvpParams, Resource):
         resp = CONTROLLER.addRsvp(session['user'], eventId, args['clientEmail'])
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 409
+        return resp, 409
     @auth_required
     def get(self, eventId):
         """
@@ -164,5 +155,4 @@ class Rsvp(RsvpParams, Resource):
         resp = CONTROLLER.retriveRsvp(args['clientEmail'], eventId)
         if resp.get('success'):
             return resp, 201
-        else:
-            return resp, 409
+        return resp, 409
