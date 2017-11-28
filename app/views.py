@@ -22,6 +22,10 @@ def auth_required(func):
         return func(*args, **kargs)
     return auth
 
+class Index(Resource):
+    def get(self):
+        return {'success':True, 'message':'welcome to Bright Events API'}
+
 class Register(RegisterParams, Resource):
     """
     Class provides logic for registering a user
@@ -84,7 +88,6 @@ class CreateEvent(EventParams, Resource):
     """
     Class contains logic to add and retrieve events
     """
-    @auth_required
     def get(self):
         """
         Triggered by get request and retrieves all events
@@ -106,22 +109,23 @@ class CreateEvent(EventParams, Resource):
             'creator':args['creator'],
             'rsvp':[]
         }
-        resp = CONTROLLER.addEvent(event_data)
-        if resp.get('success'):
-            return resp, 201
-        return resp, 401
+        if args['creator'] == session['user']:
+            resp = CONTROLLER.addEvent(event_data)
+            if resp.get('success'):
+                return resp, 201
+            return resp, 401
+        return {'success':False, 'message':'you submitted a wrong email, please recheck'}
 class Event(Resource):
     """
     Class contains logic vto retrieveeingle events and delete events
     """
-    @auth_required
     def put(self, eventId):
         """
         Triggered by a put request and retrieves a single event
         """
-        resp = CONTROLLER.retriveSingelEvent(session['user'], eventId)
+        resp = CONTROLLER.retreiveEventsByName(eventId)
         if resp.get('success'):
-            return resp, 201
+            return resp.get('message'), 201
         return resp, 409
     @auth_required
     def delete(self, eventId):

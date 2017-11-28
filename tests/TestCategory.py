@@ -47,7 +47,7 @@ class TestCategory(unittest.TestCase):
         """
         Tests deleteion of categories
         """
-        self.assertTrue(self.category.createcategory(self.category_data).get('success')) 
+        self.assertTrue(self.category.createcategory(self.category_data).get('success'))
         self.assertEqual(1, len(self.category.getallcategories()))
 
         resp = self.category.deletecategory("test category")

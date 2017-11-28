@@ -110,3 +110,10 @@ class TestEvents(unittest.TestCase):
         print(resp)
         self.assertTrue(resp.get('success'))
         self.assertIn('myevent', self.event.getUserEvents("test@bright.com").get('message'))
+    def testgetEventsByName(self):
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
+        self.assertEqual(1, len(self.event.getEvents().get('message')))
+        self.assertTrue(self.event.create_event(self.event_data2).get('success'))
+        self.assertEqual(2, len(self.event.getEvents().get('message')))
+
+        self.assertEqual(2, len(self.event.getEventByName("test event").get('message')))

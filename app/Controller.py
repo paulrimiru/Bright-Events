@@ -108,4 +108,12 @@ class Controller(object):
         """
         resp = self.events.getRsvpForEvent(email, event)
         return resp
+    def retreiveEventsByName(self, name):
+        """
+        retrieves all the events with a specific name
+        """
+        resp = self.events.getEventByName(name)
+        if len(resp) == 0:
+            return {'success': False, 'message':'No events found with that name'}
+        return {'success':True, 'message':resp}
                       

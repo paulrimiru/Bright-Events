@@ -15,7 +15,6 @@ class Events(object):
         if eventData.get('creator') and eventData.get('name'):
             if 'creator' in eventData:
                 creator = eventData.get('creator')
-
                 if creator in self.events_dict:
                     if name in self.events_dict.get(creator):
                         return {'success':False,
@@ -35,6 +34,16 @@ class Events(object):
         gets all evennts
         """
         return {'success':True, 'message':self.events_dict}
+    def getEventByName(self, name):
+        """
+        gets a all events with given name
+        """
+        result = []
+        for user in self.events_dict:
+            for event in self.events_dict.get(user):
+                if name == self.events_dict.get(user).get(event).get('name'):
+                    result.append(self.events_dict.get(user))
+        return {'success': True, 'message': result}
 
     def getUserEvents(self, userEmail):
         """

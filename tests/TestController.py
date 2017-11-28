@@ -24,6 +24,13 @@ class TestController(unittest.TestCase):
             'creator':'user@bright.com',
             'rsvp':[]
         }
+        self.event_data3 = {
+            'name':'test event',
+            'location':'Nairobi',
+            'time':'5/6/2016',
+            'creator':'user2@bright.com',
+            'rsvp':[]
+        }
         self.event_data2 = {
             'name':'test event',
             'location':'Nairobi',
@@ -142,4 +149,21 @@ class TestController(unittest.TestCase):
 
         retrive = self.controller.retriveRsvp('user@bright.com', 'test event')
         self.assertIn('myemail@bright.com', retrive.get('message'))
+    def testRetrieveEventsByName(self):
+        """
+        Tests to retrieve all events with specific names
+        """
+        resp = self.controller.registerUser(self.userData)
+        self.assertTrue(resp.get('success'))
+
+        loginres = self.controller.loginUser('user@bright.com', 'pass123')
+        self.assertTrue(loginres.get("message"))
+
+        event = self.controller.addEvent(self.event_data)
+        self.assertTrue(event.get('success'))
+
+        event = self.controller.addEvent(self.event_data3)
+        self.assertTrue(event.get('success'))
+
+        self.assertTrue(self.controller.retreiveEventsByName('test event').get('success'))
 
