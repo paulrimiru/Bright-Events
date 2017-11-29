@@ -31,7 +31,7 @@
                 
             </ul>
             <div class="side-nav" id="mobile-nav">
-                <span class="form-subheader prof-name">Username</span>
+                <span class="form-subheader prof-name">"{{data.get('user')}}"</span>
                 <ul>
                     <li><a href="home.html">Home</a></li>
                     <li><a href="index.html">logout</a></li>
@@ -56,17 +56,18 @@
         <div class="row">
             <div class="col s6">
                 <span class="div-header">My events</span>
+                {{% if len(data.get('message')) != 0 %}}
                 <ul>
+                    {{% for event in data.get('message') %}}
                     <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                        
                         <div class="card sticky-action">
                             <div class="card-image waves-effect waves-block waves-light">
                             </div>
                             <div class="card-content">
-                                <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                <p>Event description</p>
+                                <span class="card-title activator grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">more_vert</i></span>
+                                <p>Location:  {{ event.get('location')}}</p>
                                 <br>
-                                Event location and time
+                                Happening on : {{event.get('time')}}
                             </div>
                             <div class="card-action">
                                 <a href="#" class="btn-floating waves-effect waves-light red darken-1">
@@ -85,88 +86,12 @@
                             </div>  
                         </div>
                     </li>
-                    <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                            <div class="card sticky-action">
-                                <div class="card-image waves-effect waves-block waves-light">
-                                </div>
-                                <div class="card-content">
-                                    <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                    <p>Event description</p>
-                                    <br>
-                                    Event location and time
-                                </div>
-                                <div class="card-action">
-                                    <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                        <i class="material-icons">delete</i>
-                                    </a>
-                                    <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                            <i class="material-icons">edit</i>
-                                        </a>
-                                    <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                            <i class="material-icons">list</i>
-                                        </a>
-                                </div>
-                                <div class="card-reveal">
-                                    <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                    <p>More event information.</p>
-                                </div>  
-                            </div>
-                        </li>
-                        <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                                <div class="card sticky-action">
-                                    <div class="card-image waves-effect waves-block waves-light">
-                                    </div>
-                                    <div class="card-content">
-                                        <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                        <p>Event description</p>
-                                        <br>
-                                        Event location and time
-                                    </div>
-                                    <div class="card-action">
-                                        <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                            <i class="material-icons">delete</i>
-                                        </a>
-                                        <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                                <i class="material-icons">edit</i>
-                                            </a>
-                                        <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                                <i class="material-icons">list</i>
-                                            </a>
-                                    </div>
-                                    <div class="card-reveal">
-                                        <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                        <p>More event information.</p>
-                                    </div>  
-                                </div>
-                            </li>
-                            <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                                    <div class="card sticky-action">
-                                        <div class="card-image waves-effect waves-block waves-light">
-                                        </div>
-                                        <div class="card-content">
-                                            <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                            <p>Event description</p>
-                                            <br>
-                                            Event location and time
-                                        </div>
-                                        <div class="card-action">
-                                            <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                                <i class="material-icons">delete</i>
-                                            </a>
-                                            <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                                    <i class="material-icons">edit</i>
-                                                </a>
-                                            <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                                    <i class="material-icons">list</i>
-                                                </a>
-                                        </div>
-                                        <div class="card-reveal">
-                                            <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                            <p>More event information.</p>
-                                        </div>  
-                                    </div>
-                                </li>
+                    
                 </ul>
+                {{% else %}}
+                    <span class="div-header">No events available</span>
+                {{% endif %}}
+                
                 <div class="fixed-action-btn">
                     <a class="btn-floating btn-large purple darken-1 modal-trigger" href="#addeventmodal" ><i class="material-icons">add</i></a>
                 </div>

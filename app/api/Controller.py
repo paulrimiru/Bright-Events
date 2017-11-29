@@ -1,8 +1,9 @@
 """
 Module contains the controller
 """
-from app.Users import Users
-from app.Events import Events
+from .models.Users import Users
+from .models.Events import Events
+
 class Controller(object):
     """
     Class manipulates models
@@ -116,4 +117,12 @@ class Controller(object):
         if len(resp) == 0:
             return {'success': False, 'message':'No events found with that name'}
         return {'success':True, 'message':resp}
+    def editEvent(self, email, name, newevent):
+        """
+        edits a specific event
+        """
+        resp = self.events.editEvent(email, name, newevent)
+        if resp.get('success'):
+            return {'success':True, 'message':resp.get('message')}
+        return {'success':False, 'message':resp.get('message')}
                       
