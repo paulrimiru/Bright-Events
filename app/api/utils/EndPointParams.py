@@ -34,6 +34,7 @@ class EventParams(object):
     param.add_argument('location', type=str, required=False)
     param.add_argument('time', type=str, required=False)
     param.add_argument('creator', type=str, required=False)
+    param.add_argument('category', type=str, required=False)
 class RetriveEventsParams(object):
     """
     Restrieve events endpoint params
@@ -45,4 +46,5 @@ class RsvpParams(object):
     Rsvp endpoint params
     """
     param = reqparse.RequestParser()
-    param.add_argument('clientEmail')
+    param.add_argument('creator', required=False)
+    param.add_argument('clientEmail', required=False)

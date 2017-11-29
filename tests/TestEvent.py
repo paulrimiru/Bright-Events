@@ -2,7 +2,7 @@
 tests manipulation of the event model
 """
 import unittest
-from app.Events import Events
+from app.api.models.Events import Events
 
 class TestEvents(unittest.TestCase):
     """

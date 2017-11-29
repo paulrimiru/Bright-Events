@@ -2,21 +2,19 @@
 This module includes all the logic triggered by endpoints
 """
 from functools import wraps
-from app.Controller import Controller
-from app.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams
-
 from flask_restful import  Resource
-from flask import session
 
+from .Controller import Controller
+from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams
 
 CONTROLLER = Controller()
-
+mysession = {}
 def auth_required(func):
     """Wrapper to check user authorization"""
     @wraps(func)
     def auth(*args, **kargs):
         """checks for if the user is logged in through the session"""
-        if not session['signed_in']:
+        if not mysession['signed_in']:
             return {"success":False,
                     'message': 'Authentication is required to access this resource'}, 401
         return func(*args, **kargs)
@@ -52,9 +50,9 @@ class Authentication(LoginParams, Resource):
         """
         Triggered by a get request and logs out the user
         """
-        if 'user' in session:
-            session.pop('user')
-            session['signed_in'] = False
+        if 'user' in mysession:
+            mysession.pop('user')
+            mysession['signed_in'] = False
 
             return {'success':True, 'message':'user signed out'}
         return {'success':False, 'message':'Try logging in first :-)'}
@@ -65,15 +63,14 @@ class Authentication(LoginParams, Resource):
         args = self.param.parse_args()
         resp = CONTROLLER.loginUser(args['email'], args['password'])
         if resp.get('success'):
-            session['user'] = args['email']
-            session['signed_in'] = True
+            mysession['user'] = args['email']
+            mysession['signed_in'] = True
             return resp, 201
         return resp, 401
 class ResetPassword(ResetParams, Resource):
     """
     Class contains logic to reset users password
     """
-    @auth_required
     def post(self):
         """
         Triggered by a post request and resets users password
@@ -84,7 +81,7 @@ class ResetPassword(ResetParams, Resource):
             return resp, 201
         return resp, 401
 
-class CreateEvent(EventParams, Resource):
+class Events(EventParams, Resource):
     """
     Class contains logic to add and retrieve events
     """
@@ -105,48 +102,73 @@ class CreateEvent(EventParams, Resource):
         event_data = {
             'name':args['name'],
             'location':args['location'],
+            'category':args['category'],
             'time':args['time'],
             'creator':args['creator'],
             'rsvp':[]
         }
-        if args['creator'] == session['user']:
-            resp = CONTROLLER.addEvent(event_data)
-            if resp.get('success'):
-                return resp, 201
-            return resp, 401
-        return {'success':False, 'message':'you submitted a wrong email, please recheck'}
-class Event(Resource):
-    """
-    Class contains logic vto retrieveeingle events and delete events
-    """
-    def put(self, eventId):
+        resp = CONTROLLER.addEvent(event_data)
+        if resp.get('success'):
+            return resp, 201
+        return resp, 401
+    @auth_required
+    def put(self):
         """
         Triggered by a put request and retrieves a single event
         """
-        resp = CONTROLLER.retreiveEventsByName(eventId)
+        args = self.param.parse_args()
+        resp = CONTROLLER.retreiveEventsByName(args["name"])
         if resp.get('success'):
             return resp.get('message'), 201
         return resp, 409
+class ManageEvent(EventParams, Resource):
+    """
+    Class contains logic vto retrieveeingle events and delete events
+    """
+    @auth_required
+    def get(self, eventId):
+        resp = CONTROLLER.retrieveEvent(eventId)
+        if resp.get('success'):
+            return resp, 201
+        return resp, 401
+    
     @auth_required
     def delete(self, eventId):
         """
         triggered by a delete request and deletes event specified
         """
-        resp = CONTROLLER.deleteSingleEvent(session['user'], eventId)
+        resp = CONTROLLER.deleteSingleEvent(mysession['user'], eventId)
         if resp.get('success'):
             return resp, 201
         return resp, 409
+    def put(self, eventId):
+        """
+        triggered by a put request and edits a specified event
+        """
+        args = self.param.parse_args()
+        rsvp = CONTROLLER.retriveSingelEvent(args['creator'], eventId).get('message').get('rsvp')
+        event_data = {
+            'name':args['name'],
+            'location':args['location'],
+            'time':args['time'],
+            'creator':args['creator'],
+            'rsvp':rsvp
+        }
+        resp = CONTROLLER.editEvent(args['creator'], eventId, event_data)
+        if resp.get('success'):
+            return resp, 201
+        return resp, 409
+
 class Rsvp(RsvpParams, Resource):
     """
     Class manipulates Rsvp of events
     """
-    @auth_required
     def post(self, eventId):
         """
         Triggered by a post method and adds user to rsvp list
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.addRsvp(session['user'], eventId, args['clientEmail'])
+        resp = CONTROLLER.addRsvp(args['creator'], eventId, args['clientEmail'])
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -155,8 +177,7 @@ class Rsvp(RsvpParams, Resource):
         """
         Triggered ny get and retrieves a single rsvp
         """
-        args = self.param.parse_args()
-        resp = CONTROLLER.retriveRsvp(args['clientEmail'], eventId)
+        resp = CONTROLLER.retriveRsvp(mysession['user'], eventId)
         if resp.get('success'):
             return resp, 201
         return resp, 409
