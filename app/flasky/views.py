@@ -7,7 +7,7 @@ def auth_required(func):
     @wraps(func)
     def auth(*args, **kargs):
         """checks for if the user is logged in through the session"""
-        if not session['signed_in']:
+        if 'signed_in' not in session or not session['signed_in']:
             flash("Please log in first", 'error')
             return redirect(url_for('flasky.index'))
         return func(*args, **kargs)
@@ -139,11 +139,14 @@ def home():
         if resp.get('success'):
             if resp.get('message'):
                 if 'user' in session:
-                    flash("Hey there welcome to Bright-Events", 'error')
+                    flash("Hey there, "+ session['user'] +" welcome to Bright-Events", 'error')
                     return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True})
-                flash("Hey there welcome to Bright-Events", 'error')
+                flash("Hey there Anonymous welcome to Bright-Events", 'error')
                 return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False})
-            flash("Hey there welcome to Bright-Events, There are no events at the moment", 'error')
+            if 'user' in session:
+                flash("Hey there, "+ session['user'] +" welcome to Bright-Events, There are no events at the moment", 'error')
+                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True})
+            flash("Hey there, Anonymous welcome to Bright-Events, There are no events at the moment", 'error')
             return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False})
         else:
             flash(resp.get("message")+" please refresh", 'error')

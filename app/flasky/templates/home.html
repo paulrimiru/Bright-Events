@@ -10,11 +10,19 @@
             <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('flasky.dashboard') }}">Dashboard</a></li>
+                {% if data.get('logged_in') %}
                 <li><a href="{{ url_for('flasky.login') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('flasky.index') }}">Login</a></li>
+                {% endif %}
             </ul>
             <ul class="side-nav" id="mobile-nav">
                 <li><a href="{{ url_for('flasky.dashboard') }}">Dashboard</a></li>
+                {% if data.get('logged_in') %}
                 <li><a href="{{ url_for('flasky.login') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('flasky.index') }}">Login</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
