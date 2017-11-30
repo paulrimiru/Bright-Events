@@ -43,6 +43,8 @@
                                 <p>Location:  {{ event.get('location')}}</p>
                                 <br>
                                 Happening on : {{event.get('time')}}
+                                <br>
+                                Sponsored by : {{event.get('creator')}}
                             </div>
                             {% if data.get('logged_in') %}
                             <form action="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" method="POST">
@@ -64,6 +66,7 @@
                                 <span class="card-title grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">close</i></span>
                                 <p>Happening at:  {{ event.get('location')}}</p>
                                 <p>Happening on: {{event.get('time')}}</p>
+                                <p>Sponsored by : {{event.get('creator')}}</p>
                             </div>  
                         </div>
                     </li>
@@ -93,7 +96,11 @@
                     
                 </ul>
                 {% else %}
-                    <span class="div-header">No events available</span>
+                <div class="row no-event-diver">
+                    <div class="col s4 offset-s4">
+                        <span class="div-header">No events available</span>
+                    </div>
+                </div>
                 {% endif %}
             </div>
         </div>

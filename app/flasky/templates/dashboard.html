@@ -58,15 +58,17 @@
                                 <p>Location:  {{ event.get('location')}}</p>
                                 <br>
                                 Happening on : {{event.get('time')}}
+                                <br>
+                                Sponsored by : {{event.get('creator')}}
                             </div>
                             <div class="card-action">
-                                <a href="{{ url_for('flasky.deleteevent', eventname=event.get('name')) }}" class="btn-floating waves-effect waves-light red darken-1">
+                                <a href="{{ url_for('flasky.deleteevent', eventname=event.get('name')) }}" class="btn-floating waves-effect waves-light red darken-1 tooltipped" data-tooltip="Delete event">
                                     <i class="material-icons">delete</i>
                                 </a>
-                                <a  class="btn-floating waves-effect waves-light yellow darken-1 modal-trigger" href="#editEvent">
+                                <a  class="btn-floating waves-effect waves-light yellow darken-1 modal-trigger tooltipped" href="#editEvent" data-tooltip="Edit event">
                                         <i class="material-icons">edit</i>
                                     </a>
-                                <a href="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" class="btn-floating waves-effect waves-light green darken-1">
+                                <a href="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" class="btn-floating waves-effect waves-light green darken-1 tooltipped" data-tooltip="View rsvp list">
                                         <i class="material-icons">list</i>
                                     </a>
                             </div>
@@ -74,6 +76,7 @@
                                 <span class="card-title grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">close</i></span>
                                 <p>Happening at:  {{ event.get('location')}}</p>
                                 <p>Happening on: {{event.get('time')}}</p>
+                                <p>Sponsored by : {{event.get('creator')}}</p>
                             </div>  
                         </div>
                     </li>
@@ -128,7 +131,9 @@
                     
                 </ul>
                 {% else %}
+                <div class="row no-event-div">
                     <span class="div-header">No events available</span>
+                </div>
                 {% endif %}
                 <div class="fixed-action-btn">
                     <a class="btn-floating waves-effect waves-light btn-large purple darken-1 modal-trigger" href="#addeventmodal" ><i class="material-icons">add</i></a>
@@ -160,7 +165,9 @@
                     {% endfor %}
                 </ul>
                 {% else %}
-                <span class="div-header">Select a list</span>
+                <div class="row no-event-div">
+                    <span class="div-header">Select a list</span>
+                </div>
                 {% endif %}
             </div>
         </div>
