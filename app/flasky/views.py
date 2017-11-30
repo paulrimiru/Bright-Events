@@ -78,6 +78,7 @@ def dashboard():
         if request.args.get('rsvp'):
             for rsvp in request.args.get('rsvp').split(','):
                 rsvplist.append(rsvp)
+        print(resp.get('message'))
         return render_template("dashboard.html", data={'user':session['user'],
                             'events':resp.get('message'), 'rsvp':rsvplist})
     return render_template("dashboard.html", data={'user':session['user'],
