@@ -110,9 +110,8 @@ def events():
 def rsvps(creator, event):
     if request.method == 'POST':
         clientmail = request.form.get('email', None)
-        if clientmail is None:
+        if not clientmail:
             clientmail = session['user']
-            resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
         resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
 
         if resp.get('success'):
