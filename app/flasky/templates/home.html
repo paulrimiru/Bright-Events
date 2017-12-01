@@ -46,6 +46,7 @@
                                 <br>
                                 Sponsored by : {{event.get('creator')}}
                             </div>
+                            {% if not event.get('name') in data.get('myevents')%}
                             {% if data.get('logged_in') %}
                             <form action="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" method="POST">
                                 <input type="hidden" value="">
@@ -61,6 +62,7 @@
                                     <i class="material-icons">favorite_border</i>
                                 </a>
                             </div>
+                            {% endif %}
                             {% endif %}
                             <div class="card-reveal">
                                 <span class="card-title grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">close</i></span>

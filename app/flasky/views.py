@@ -78,9 +78,8 @@ def dashboard():
         if request.args.get('rsvp'):
             for rsvp in request.args.get('rsvp').split(','):
                 rsvplist.append(rsvp)
-        print(resp.get('message'))
         return render_template("dashboard.html", data={'user':session['user'],
-                            'events':resp.get('message'), 'rsvp':rsvplist})
+                               'events':resp.get('message'), 'rsvp':rsvplist})
     return render_template("dashboard.html", data={'user':session['user'],
                             'events':resp.get('message'), 'empty':True})
 
@@ -136,21 +135,25 @@ def rsvps(creator, event):
 def home():
     if request.method == 'GET':
         resp = requests.get("http://127.0.0.1:5000/api/v1/events").json()
+        usersevents = []
         if resp.get('success'):
             if resp.get('message'):
                 if 'user' in session:
+                    for event in resp.get('message'):
+                        if event.get('creator') == session['user']:
+                            usersevents.append(event.get('name'))
                     flash("Hey there, "+ session['user'] +" welcome to Bright-Events", 'error')
-                    return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True})
+                    return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True, 'myevents':usersevents})
                 flash("Hey there Anonymous welcome to Bright-Events", 'error')
-                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False})
+                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False,'myevents':usersevents})
             if 'user' in session:
                 flash("Hey there, "+ session['user'] +" welcome to Bright-Events, There are no events at the moment", 'error')
-                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True})
+                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True, 'myevents':usersevents})
             flash("Hey there, Anonymous welcome to Bright-Events, There are no events at the moment", 'error')
-            return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False})
+            return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False, 'myevents':usersevents})
         else:
             flash(resp.get("message")+" please refresh", 'error')
-            return render_template("home.html", data = {'events':[]})
+            return render_template("home.html", data = {'events':[], 'myevents':usersevents})
 
 @flasky.route('/editevent', methods=['POST'])
 def editevent():
