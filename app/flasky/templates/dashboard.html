@@ -44,12 +44,12 @@
     <main>
     <div class="container">
         <div class="row">
-            <div class="col s6">
+            <div class="col s12">
                 <span class="div-header">My events</span>
                 {% if not data.get('empty') %}
-                <ul>
+                <ul class="events-list">
                     {% for event in data.get('events') %}
-                    <li id="event-item" data-aos="zoom-in" data-aos-offset="100" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                    <li class="event-item" data-aos="zoom-in" data-aos-offset="100" data-aos-easing="ease-in-sine" data-aos-duration="800">
                         <div class="card sticky-action">
                             <div class="card-image waves-effect waves-block waves-light">
                             </div>
@@ -62,13 +62,13 @@
                                 Sponsored by : {{event.get('creator')}}
                             </div>
                             <div class="card-action">
-                                <a href="{{ url_for('flasky.deleteevent', eventname=event.get('name')) }}" class="btn-floating waves-effect waves-light red darken-1 tooltipped" data-tooltip="Delete event">
+                                <a  class="btn-floating waves-effect waves-light red darken-1 tooltipped modal-trigger" href="#deleteEvent{{event.get('name')}}" data-tooltip="Delete event">
                                     <i class="material-icons">delete</i>
                                 </a>
-                                <a  class="btn-floating waves-effect waves-light yellow darken-1 modal-trigger tooltipped" href="#editEvent" data-tooltip="Edit event">
+                                <a  class="btn-floating waves-effect waves-light yellow darken-1 modal-trigger tooltipped" href="#editEvent{{event.get('name')}}" data-tooltip="Edit event">
                                         <i class="material-icons">edit</i>
                                     </a>
-                                <a href="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" class="btn-floating waves-effect waves-light green darken-1 tooltipped" data-tooltip="View rsvp list">
+                                <a href="#viewrsvp{{event.get('name')}}" class="btn-floating waves-effect waves-light green darken-1 tooltipped modal-trigger" data-tooltip="View rsvp list">
                                         <i class="material-icons">list</i>
                                     </a>
                             </div>
@@ -81,7 +81,57 @@
                         </div>
                     </li>
 
-                    <div class="modal" id="editEvent">
+                    <div class="modal" id="viewrsvp{{event.get('name')}}">
+                        <div class="rsvp-div">
+                            <span class="div-header">RSVP List for event {{event.get('name')}}</span>
+                            {% if event.get('rsvp') %}
+                            <ul>
+                                {% for rsvp in event.get('rsvp')%}
+                                <li  data-aos="zoom-in" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                                    <div class="col s12">
+                                        <div class="card-panel grey lighten-5 z-depth-1">
+                                            <div class="row valign-wrapper">
+            
+                                            <div class="col s12">
+                                                <div class="row">
+                                                    <h4 class="card-title purple-text text-darken-4">{{ rsvp }}</h4>
+                                                </div>
+                                                <div class="row">
+                                                    <h5 class="black-text">Coming</h5>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <div class="row no-event-div">
+                                <span class="div-header">No one has Rsvp this event, yet</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="modal card" id="deleteEvent{{event.get('name')}}">
+                        <div class="card-content container">
+                            <div class="row ">
+                                <span class="card-title col s4 center modal-title">Delete {{ event.get('name') }}</span>
+                            </div>
+                            <div class="row module-para">
+                                <p>
+                                    Are you sure you want to delete this event?
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a href="{{ url_for('flasky.deleteevent', eventname=event.get('name')) }}">Yes</a>
+                            <a href="" class="modal-action modal-close">No</a>
+                        </div>
+                    </div>
+            
+                    <div class="modal" id="editEvent{{event.get('name')}}">
                         <div class="container">
                             <div class="row">
                                 <form action="{{ url_for('flasky.editevent') }}" method='POST' class="modal-form">
@@ -132,43 +182,14 @@
                 </ul>
                 {% else %}
                 <div class="row no-event-div">
-                    <span class="div-header">No events available</span>
+                    <div class="col s4 offset-s4">
+                        <span class="div-header">No events available</span>
+                    </div>
                 </div>
                 {% endif %}
                 <div class="fixed-action-btn">
                     <a class="btn-floating waves-effect waves-light btn-large purple darken-1 modal-trigger" href="#addeventmodal" ><i class="material-icons">add</i></a>
                 </div>
-            </div>
-            <div class="col s6 rsvp-div">
-                <span class="div-header">RSVP List</span>
-                {% if data.get('rsvp') %}
-                <ul>
-                    {% for rsvp in data.get('rsvp')%}
-                    <li  data-aos="zoom-in" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                        <div class="col s12">
-                            <div class="card-panel grey lighten-5 z-depth-1">
-                                <div class="row valign-wrapper">
-
-                                <div class="col s12">
-                                    <div class="row">
-                                        <h4 class="card-title purple-text text-darken-4">{{ rsvp }}</h4>
-                                    </div>
-                                    <div class="row">
-                                        <h5 class="black-text">Coming</h5>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <div class="row no-event-div">
-                    <span class="div-header">Select a list</span>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
