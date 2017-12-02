@@ -11,11 +11,15 @@ class Users(object):
         """
         Adds user
         """
+
         EMAIL = userData.get('email')
-        if EMAIL in self.users_dict:
-            return {"success":False, 'message':"user with that email already exists"}
-        self.users_dict.update({EMAIL:userData})
-        return {"success":True, 'message':"user created successfully"}
+        for key in self.users_dict:
+            print(self.users_dict.get(key))
+            if EMAIL == self.users_dict.get(key).get('email'):
+                return {"success":False, 'message':"user with that email already exists"}
+        user_id = self.generate_id()
+        self.users_dict.update({user_id:userData})
+        return {"success":True, 'message':{'id':user_id, 'data':self.users_dict.get(user_id)}}
     def getUsers(self):
         """
         gets all users
@@ -27,17 +31,19 @@ class Users(object):
         """
         gets specific user
         """
-        if email in self.users_dict:
-            return {'success':True, 'message':self.users_dict.get(email)}
+        user_id = self.get_user_id(email)
+        if user_id:
+            return {'success':True, 'message':self.users_dict.get(user_id)}
         return {'success':False, 'message':"user not found"}
     def deleteUser(self, email):
         """
         deletes user
         """
-        if email in self.users_dict:
-            self.users_dict.pop(email)
+        user_id = self.get_user_id(email)
+        if user_id:
+            self.users_dict.pop(user_id)
             return {'success':True, 'message':'user deleted'}
-        return {'success':True, 'message':"user does not exist"}
+        return {'success':False, 'message':"user does not exist"}
     def updateUser(self, email, newUserData):
         """
         updates user details
@@ -48,3 +54,14 @@ class Users(object):
             return {'success':False,
                     'message':self.addUser(newUserData).get('success').get('message')}
         return {'success':False, 'message':self.deleteUser(email).get('message')}
+    def generate_id(self, proposed_id = 0):
+        if proposed_id == 0:
+            proposed_id = len(self.users_dict)+1
+        if proposed_id in self.users_dict:
+            self.generate_id(proposed_id)
+        return proposed_id
+    def get_user_id(self, email):
+        for user_id in self.users_dict:
+            if email == self.users_dict.get(user_id).get('email'):
+                return user_id
+        return None  

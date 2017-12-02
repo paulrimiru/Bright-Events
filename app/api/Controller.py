@@ -17,10 +17,9 @@ class Controller(object):
         """
         resp = self.users.addUser(user_data)
         if resp.get('success'):
-            return {'success':True, 'payload':{'username':user_data.get('username'),
-                                               'email':user_data.get('email')}}
+            return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
-    
+
     def loginUser(self, email, password):
         """
         logs us in
