@@ -27,7 +27,7 @@ class Controller(object):
         resp = self.users.getUser(email)
         if resp.get('success'):
             if password == resp.get('message').get('password'):
-                return {'success':True, 'payload':{'email':email}}
+                return {'success':True, 'payload':{'email':email, 'id':resp.get('id')}}
             return {'success':False, 'message':'user credentials wrong'}
         return {'success':False, 'message':resp.get('message')}
     def resetPassword(self, email, newPass):
@@ -52,11 +52,11 @@ class Controller(object):
         if resp.get('success'):
             return {'success':True, 'payload':eventData}
         return {'success':False, 'message':resp.get('message')}
-    def retrieveEvent(self, email):
+    def retrieveEvent(self, user_id):
         """
         retrieves events
         """
-        resp = self.events.getUserEvents(email)
+        resp = self.events.getUserEvents(user_id)
         if resp.get('success'):
             myevents = []
             for key in resp.get('message'):
@@ -93,19 +93,19 @@ class Controller(object):
                     EVENTLIST.append(resp.get(key).get(USEREVENT))
             return {'success':True, 'payload':EVENTLIST}
         return {'success':False, 'message':resp.get('message')}
-    def addRsvp(self, useremail, eventname, email):
+    def addRsvp(self, user_id, event_id, email):
         """
         adds a rsvp to event
         """
-        rsvpresp = self.events.rsvpEvent(useremail, eventname, email)
+        rsvpresp = self.events.rsvpEvent(user_id, event_id, email)
         if rsvpresp.get('success'):
             return {'success':True, 'payload':rsvpresp.get('message')}
         return {'success':False, 'message':rsvpresp.get('message')}
-    def retriveRsvp(self, email, event):
+    def retriveRsvp(self, user_id, event_id):
         """
         retrieves all rsvp for single user
         """
-        resp = self.events.getRsvpForEvent(email, event)
+        resp = self.events.getRsvpForEvent(user_id, int(event_id))
         if resp.get('success'):
             return {'success':True, 'payload':resp.get('message')}
         return resp

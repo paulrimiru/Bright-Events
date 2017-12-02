@@ -33,7 +33,7 @@ class Users(object):
         """
         user_id = self.get_user_id(email)
         if user_id:
-            return {'success':True, 'message':self.users_dict.get(user_id)}
+            return {'success':True, 'message':self.users_dict.get(user_id), 'id': user_id}
         return {'success':False, 'message':"user not found"}
     def deleteUser(self, email):
         """
@@ -58,7 +58,7 @@ class Users(object):
         if proposed_id == 0:
             proposed_id = len(self.users_dict)+1
         if proposed_id in self.users_dict:
-            self.generate_id(proposed_id)
+            self.generate_id(proposed_id+1)
         return proposed_id
     def get_user_id(self, email):
         for user_id in self.users_dict:

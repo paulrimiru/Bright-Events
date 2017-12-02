@@ -21,14 +21,14 @@ class TestController(unittest.TestCase):
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'user@bright.com',
+            'creator':1,
             'rsvp':[]
         }
         self.event_data3 = {
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'user2@bright.com',
+            'creator':2,
             'rsvp':[]
         }
         self.event_data2 = {
@@ -111,7 +111,7 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        eventsresp = self.controller.retrieveEvent('user@bright.com')
+        eventsresp = self.controller.retrieveEvent(1)
         self.assertTrue(eventsresp.get('success'))
         self.assertListEqual([self.event_data], eventsresp.get('payload'))
     def testSaveRsvp(self):
@@ -127,7 +127,7 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        rsvp = self.controller.addRsvp('user@bright.com', 'test event', 'myemail@bright.com')
+        rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
         self.assertIn('myemail@bright.com', rsvp.get('payload'))
     def testRetrieveRsvp(self):
@@ -143,11 +143,12 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        rsvp = self.controller.addRsvp('user@bright.com', 'test event', 'myemail@bright.com')
+        rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
         self.assertIn('myemail@bright.com', rsvp.get('payload'))
 
-        retrive = self.controller.retriveRsvp('user@bright.com', 'test event')
+        retrive = self.controller.retriveRsvp(1, 11)
+        print(retrive)
         self.assertIn('myemail@bright.com', retrive.get('payload'))
     def testRetrieveEventsByName(self):
         """

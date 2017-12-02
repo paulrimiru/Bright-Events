@@ -53,7 +53,7 @@ class Authentication(LoginParams, Resource):
         args = self.param.parse_args()
         resp = CONTROLLER.loginUser(args['email'], args['password'])
         if resp.get('success'):
-            mysession['user'] = args['email']
+            mysession['user'] = resp.get('payload').get('id')
             mysession['signed_in'] = True
             return resp, 201
         return resp, 401
