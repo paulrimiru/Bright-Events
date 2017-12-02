@@ -23,7 +23,7 @@ class LogoutParams(object):
     Logout endpoint params
     """
     param = reqparse.RequestParser()
-    param.add_argument('email', type=str, required=True)
+    param.add_argument('id', type=str, required=True)
 class ResetParams(object):
     """
     Password reset endpoint params
@@ -39,14 +39,7 @@ class EventParams(object):
     param.add_argument('name', type=str, required=False)
     param.add_argument('location', type=str, required=False)
     param.add_argument('time', type=str, required=False)
-    param.add_argument('creator', type=str, required=False)
     param.add_argument('category', type=str, required=False)
-class RetriveEventsParams(object):
-    """
-    Restrieve events endpoint params
-    """
-    param = reqparse.RequestParser()
-    param.add_argument('userEmail', type=str, required=True)
 class RsvpParams(object):
     """
     Rsvp endpoint params

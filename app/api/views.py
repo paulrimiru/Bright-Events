@@ -66,8 +66,9 @@ class Logout(LogoutParams, Resource):
         Triggered by a get request and logs out the user
         """
         args = self.param.parse_args()
+        print(args)
         if 'user' in mysession:
-            if mysession['user'] == args['email']:
+            if mysession['user'] == int(args['id']):
                 mysession.pop('user')
                 mysession['signed_in'] = False
 
@@ -112,7 +113,7 @@ class Events(EventParams, Resource):
             'location':args['location'],
             'category':args['category'],
             'time':args['time'],
-            'creator':args['creator'],
+            'creator':mysession['user'],
             'rsvp':[]
         }
         resp = CONTROLLER.addEvent(event_data)
@@ -135,7 +136,7 @@ class ManageEvent(EventParams, Resource):
     """
     @auth_required
     def get(self, eventId):
-        resp = CONTROLLER.retrieveEvent(eventId)
+        resp = CONTROLLER.retrieveEvent(int(eventId))
         if resp.get('success'):
             return resp, 201
         return resp, 401
@@ -145,7 +146,7 @@ class ManageEvent(EventParams, Resource):
         """
         triggered by a delete request and deletes event specified
         """
-        resp = CONTROLLER.deleteSingleEvent(mysession['user'], eventId)
+        resp = CONTROLLER.deleteSingleEvent(mysession['user'], int(eventId))
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -154,15 +155,15 @@ class ManageEvent(EventParams, Resource):
         triggered by a put request and edits a specified event
         """
         args = self.param.parse_args()
-        rsvp = CONTROLLER.retriveSingelEvent(args['creator'], eventId).get('message').get('rsvp')
+        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'], int(eventId)).get('message').get('rsvp')
         event_data = {
             'name':args['name'],
             'location':args['location'],
             'time':args['time'],
-            'creator':args['creator'],
+            'creator':mysession['user'],
             'rsvp':rsvp
         }
-        resp = CONTROLLER.editEvent(args['creator'], eventId, event_data)
+        resp = CONTROLLER.editEvent(mysession['user'], int(eventId), event_data)
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -176,7 +177,7 @@ class Rsvp(RsvpParams, Resource):
         Triggered by a post method and adds user to rsvp list
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.addRsvp(args['creator'], eventId, args['clientEmail'])
+        resp = CONTROLLER.addRsvp(int(args['creator']), int(eventId), args['clientEmail'])
         if resp.get('success'):
             return resp, 201
         return resp, 409

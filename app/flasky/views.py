@@ -57,7 +57,7 @@ def login():
         return redirect(url_for('flasky.index'))
     if request.method == 'GET':
         user_data = {
-            'email':session['user']
+            'id':session['user']
         }
         resp = requests.post("http://127.0.0.1:5000/api/v1/auth/logout", data=user_data).json()
         if resp.get('success'):
