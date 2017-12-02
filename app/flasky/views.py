@@ -51,7 +51,7 @@ def login():
         if resp.get('success'):
             session['user']=email
             session['signed_in']=True
-            flash(resp.get('message'), 'error')
+            flash(resp.get('message'), 'success')
             return redirect(url_for('flasky.dashboard'))
         flash(resp.get('message'), 'error')
         return redirect(url_for('flasky.index'))
@@ -59,15 +59,14 @@ def login():
         user_data = {
             'email':session['user']
         }
-        resp = requests.get("http://127.0.0.1:5000/api/v1/auth/login", data=user_data).json()
+        resp = requests.post("http://127.0.0.1:5000/api/v1/auth/logout", data=user_data).json()
         if resp.get('success'):
             session.pop('user')
             session['signed_in'] = False
-            flash('successfully logged out', 'error')
+            flash('successfully logged out', 'success')
             return redirect(url_for('flasky.index'))
-        else:
-            flash('could not log you out '+resp.get('message'), 'error')
-            return redirect(url_for('flasky.home'))
+        flash('could not log you out '+resp.get('message'), 'error')
+        return redirect(url_for('flasky.home'))
 
 @flasky.route('/dashboard', methods = ['GET', 'POST'])
 @auth_required
@@ -101,7 +100,7 @@ def events():
         }
         resp = requests.post("http://127.0.0.1:5000/api/v1/events", data=event_data).json()
         if resp.get('success'):
-            flash(resp.get('message'), 'error')
+            flash("Event has been saved successfully", 'success')
             return redirect(url_for('flasky.dashboard'))
         flash(resp.get('message'), 'error')
         return redirect(url_for('flasky.dashboard'))

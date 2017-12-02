@@ -17,7 +17,13 @@ class LoginParams(object):
     """
     param = reqparse.RequestParser()
     param.add_argument('email', type=str, required=True)
-    param.add_argument('password', type=str, required=False)
+    param.add_argument('password', type=str, required=True)
+class LogoutParams(object):
+    """
+    Logout endpoint params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('email', type=str, required=True)
 class ResetParams(object):
     """
     Password reset endpoint params

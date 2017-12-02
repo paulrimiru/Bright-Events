@@ -80,7 +80,7 @@ class Events(object):
         if resp.get('success'):
             resp = self.create_event(new_event)
             if resp.get('success'):
-                return {'success':True, 'message':'Event successfully edited'}
+                return {'success':True, 'message':new_event}
             return {'success':False, 'message':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
 

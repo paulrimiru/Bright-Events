@@ -5,7 +5,7 @@ from functools import wraps
 from flask_restful import  Resource
 
 from .Controller import Controller
-from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams
+from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams, LogoutParams
 
 CONTROLLER = Controller()
 mysession = {}
@@ -46,16 +46,6 @@ class Authentication(LoginParams, Resource):
     """
     Class contains logic that authenticates the users
     """
-    def get(self):
-        """
-        Triggered by a get request and logs out the user
-        """
-        if 'user' in mysession:
-            mysession.pop('user')
-            mysession['signed_in'] = False
-
-            return {'success':True, 'message':'user signed out'}
-        return {'success':False, 'message':'Try logging in first :-)'}
     def post(self):
         """
         Triggered by a post request and logs in the user
@@ -67,6 +57,24 @@ class Authentication(LoginParams, Resource):
             mysession['signed_in'] = True
             return resp, 201
         return resp, 401
+class Logout(LogoutParams, Resource):
+    """
+    class contains logic that logsout user
+    """
+    def post(self):
+        """
+        Triggered by a get request and logs out the user
+        """
+        args = self.param.parse_args()
+        if 'user' in mysession:
+            if mysession['user'] == args['email']:
+                mysession.pop('user')
+                mysession['signed_in'] = False
+
+                return {'success':True, 'payload':None}
+            else:
+                return {'success':False, 'message':'user provided is not in session'}
+        return {'success':False, 'message':'No user is logged i at the momment with your account'}
 class ResetPassword(ResetParams, Resource):
     """
     Class contains logic to reset users password
@@ -131,7 +139,7 @@ class ManageEvent(EventParams, Resource):
         if resp.get('success'):
             return resp, 201
         return resp, 401
-    
+
     @auth_required
     def delete(self, eventId):
         """
@@ -167,7 +175,6 @@ class Rsvp(RsvpParams, Resource):
         """
         Triggered by a post method and adds user to rsvp list
         """
-        
         args = self.param.parse_args()
         resp = CONTROLLER.addRsvp(args['creator'], eventId, args['clientEmail'])
         if resp.get('success'):

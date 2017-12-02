@@ -17,7 +17,8 @@ class Controller(object):
         """
         resp = self.users.addUser(user_data)
         if resp.get('success'):
-            return {'success':True, 'message':'user registered'}
+            return {'success':True, 'payload':{'username':user_data.get('username'),
+                                               'email':user_data.get('email')}}
         return {'success':False, 'message':resp.get('message')}
     
     def loginUser(self, email, password):
@@ -26,10 +27,8 @@ class Controller(object):
         """
         resp = self.users.getUser(email)
         if resp.get('success'):
-            print(password)
-            print(resp.get('message').get('password'))
             if password == resp.get('message').get('password'):
-                return {'success':True, 'message':'user credentials verified'}
+                return {'success':True, 'payload':{'email':email}}
             return {'success':False, 'message':'user credentials wrong'}
         return {'success':False, 'message':resp.get('message')}
     def resetPassword(self, email, newPass):
@@ -42,7 +41,7 @@ class Controller(object):
             user['password'] = newPass
             resp = self.users.updateUser(email, user)
             if resp.get('success'):
-                return {'success':True, 'message':'password reset successfully'}
+                return {'success':True, 'payload':user}
             return {'success':False, 'message':'password was not reset'}
         return {'success':False, 'message':resp.get('message')}
 
@@ -52,7 +51,7 @@ class Controller(object):
         """
         resp = self.events.create_event(eventData)
         if resp.get('success'):
-            return {'success':True, 'message':'Event added'}
+            return {'success':True, 'payload':eventData}
         return {'success':False, 'message':resp.get('message')}
     def retrieveEvent(self, email):
         """
@@ -63,7 +62,7 @@ class Controller(object):
             myevents = []
             for key in resp.get('message'):
                 myevents.append(resp.get('message').get(key))
-            return {'success':True, 'message':myevents}
+            return {'success':True, 'payload':myevents}
         return {'success':False, 'message':resp.get('message')}
     def retriveSingelEvent(self, email, eventname):
         """
@@ -71,7 +70,7 @@ class Controller(object):
         """
         resp = self.events.getEvent(email, eventname)
         if resp.get("success"):
-            return {'success':True, "message":resp.get("message")}
+            return {'success':True, "payload":resp.get("message")}
         return {'success':False, "message":resp.get("message")}
     def deleteSingleEvent(self, email, eventname):
         """
@@ -79,7 +78,7 @@ class Controller(object):
         """
         resp = self.events.deleteEvent(email, eventname)
         if resp.get('success'):
-            return {'success':True, 'message':resp.get('message')}
+            return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
 
     def retrieveAllEvents(self):
@@ -93,7 +92,7 @@ class Controller(object):
             for key in resp:
                 for USEREVENT in resp.get(key):
                     EVENTLIST.append(resp.get(key).get(USEREVENT))
-            return {'success':True, 'message':EVENTLIST}
+            return {'success':True, 'payload':EVENTLIST}
         return {'success':False, 'message':resp.get('message')}
     def addRsvp(self, useremail, eventname, email):
         """
@@ -101,13 +100,15 @@ class Controller(object):
         """
         rsvpresp = self.events.rsvpEvent(useremail, eventname, email)
         if rsvpresp.get('success'):
-            return {'success':True, 'message':rsvpresp.get('message')}
+            return {'success':True, 'payload':rsvpresp.get('message')}
         return {'success':False, 'message':rsvpresp.get('message')}
     def retriveRsvp(self, email, event):
         """
         retrieves all rsvp for single user
         """
         resp = self.events.getRsvpForEvent(email, event)
+        if resp.get('success'):
+            return {'success':True, 'payload':resp.get('message')}
         return resp
     def retreiveEventsByName(self, name):
         """
@@ -116,13 +117,13 @@ class Controller(object):
         resp = self.events.getEventByName(name)
         if len(resp) == 0:
             return {'success': False, 'message':'No events found with that name'}
-        return {'success':True, 'message':resp}
+        return {'success':True, 'payload':resp}
     def editEvent(self, email, name, newevent):
         """
         edits a specific event
         """
         resp = self.events.editEvent(email, name, newevent)
         if resp.get('success'):
-            return {'success':True, 'message':resp.get('message')}
+            return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
                       
