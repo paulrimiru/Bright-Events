@@ -51,7 +51,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertEqual('user@bright.com',loginres.get("payload").get('email'))
+        self.assertEqual('test user',loginres.get("payload").get('username'))
     def testUserAddEvent(self):
         """
         tests ability for user to add events
@@ -78,7 +78,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertEqual('user@bright.com', loginres.get("payload").get('email'))
+        self.assertEqual('test user', loginres.get("payload").get('username'))
 
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
@@ -158,7 +158,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertEqual('user@bright.com', loginres.get("payload").get('email'))
+        self.assertEqual('test user', loginres.get("payload").get('username'))
 
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))

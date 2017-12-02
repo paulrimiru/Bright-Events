@@ -12,14 +12,17 @@ class Events(object):
         creates events
         """
         event_id = self.generate_id(eventData, event_id)
+        print("new event id", eventData.get('name')+str(event_id))
         if event_id:
             user_events = self.events_dict.get(eventData.get('creator'))            
             for events in user_events:
                 if eventData.get('name') == user_events.get(events).get('name'):
                     return {'success':False,
                             'message':"Dublicate event, please change the event name"}
+            eventData.update({'id':event_id})
             user_events.update({event_id:eventData})
             self.events_dict.update({eventData.get('creator'):user_events})
+            print(self.events_dict)
             return {'success':True, 'message':{event_id:eventData}}
         else:
             return {'success':False, 'message': 'please provide the creator user id'}
@@ -108,13 +111,13 @@ class Events(object):
         return {'success':False, 'message':'user does not exist'}
     def generate_id(self, eventdata, proposed_id=0):
         if eventdata.get('creator'):
-            if eventdata.get('creator') in self.events_dict:
+            if int(eventdata.get('creator')) in self.events_dict:
                 user_events = self.events_dict.get(eventdata.get('creator'))
                 if proposed_id == 0:
-                    proposed_id = str(eventdata.get('creator'))+str(len(user_events))
-                if proposed_id in user_events:
-                    self.generate_id(eventdata, proposed_id+1)
-                return proposed_id
+                    proposed_id = int(str(eventdata.get('creator'))+str(len(user_events)))
+                if proposed_id not in user_events:
+                    return proposed_id
+                return self.generate_id(eventdata, proposed_id+1)
             self.events_dict.update({eventdata.get('creator'):{}})
             return int(str(eventdata.get('creator'))+"1")
         return None

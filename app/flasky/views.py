@@ -30,7 +30,7 @@ def register():
         }
         resp = requests.post("http://127.0.0.1:5000/api/v1/auth/register",data=use_data).json()
         if resp.get('success'):
-            flash(resp.get('message'), 'error')
+            flash("Account created successfullu", 'error')
             return redirect(url_for('flasky.index'))
         else:
             flash(resp.get('message'), 'error')
@@ -49,9 +49,10 @@ def login():
 
         resp = requests.post("http://127.0.0.1:5000/api/v1/auth/login",data=user_data).json()
         if resp.get('success'):
-            session['user']=email
+            session['user']=resp.get('payload').get('id')
+            session['username']=resp.get('payload').get('username')
             session['signed_in']=True
-            flash(resp.get('message'), 'success')
+            flash("Welcome" + resp.get('payload').get('username'), 'success')
             return redirect(url_for('flasky.dashboard'))
         flash(resp.get('message'), 'error')
         return redirect(url_for('flasky.index'))
@@ -62,6 +63,7 @@ def login():
         resp = requests.post("http://127.0.0.1:5000/api/v1/auth/logout", data=user_data).json()
         if resp.get('success'):
             session.pop('user')
+            session.pop('username')
             session['signed_in'] = False
             flash('successfully logged out', 'success')
             return redirect(url_for('flasky.index'))
@@ -71,16 +73,17 @@ def login():
 @flasky.route('/dashboard', methods = ['GET', 'POST'])
 @auth_required
 def dashboard():
-    resp = requests.get("http://127.0.0.1:5000/api/v1/events/"+session['user']).json()
+    resp = requests.get("http://127.0.0.1:5000/api/v1/events/"+str(session['user'])).json()
+    print(">>Dashboard", resp)
     if resp.get('success'):
         rsvplist = []
         if request.args.get('rsvp'):
             for rsvp in request.args.get('rsvp').split(','):
                 rsvplist.append(rsvp)
-        return render_template("dashboard.html", data={'user':session['user'],
-                               'events':resp.get('message'), 'rsvp':rsvplist})
-    return render_template("dashboard.html", data={'user':session['user'],
-                            'events':resp.get('message'), 'empty':True})
+        return render_template("dashboard.html", data={'user':session['username'],
+                               'events':resp.get('payload'), 'rsvp':rsvplist})
+    return render_template("dashboard.html", data={'user':session['username'],
+                            'events':resp.get('payload'), 'empty':True})
 
 @flasky.route('/events', methods=['POST'])
 @auth_required
@@ -114,7 +117,7 @@ def rsvps(creator, event):
         resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
 
         if resp.get('success'):
-            myrsvp = ','.join(resp.get('message'))
+            myrsvp = ','.join(resp.get('payload'))
             flash("Rsvp sent for event "+event, 'error')
             return redirect(url_for('flasky.home'))
         else:
@@ -123,7 +126,7 @@ def rsvps(creator, event):
     elif request.method == 'GET':
         resp = requests.get("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'clientEmail':session['user']}).json()
         if resp.get('success'):
-            myrsvp = ','.join(resp.get('message'))
+            myrsvp = ','.join(resp.get('payload'))
             flash("Fetched rsvp for event"+event, 'error')
             return redirect(url_for('flasky.dashboard', rsvp=myrsvp))
         else:
@@ -134,22 +137,23 @@ def rsvps(creator, event):
 def home():
     if request.method == 'GET':
         resp = requests.get("http://127.0.0.1:5000/api/v1/events").json()
+        print("Home >>",resp)
         usersevents = []
         if resp.get('success'):
-            if resp.get('message'):
+            if resp.get('payload'):
                 if 'user' in session:
-                    for event in resp.get('message'):
+                    for event in resp.get('payload'):
                         if event.get('creator') == session['user']:
                             usersevents.append(event.get('name'))
-                    flash("Hey there, "+ session['user'] +" welcome to Bright-Events", 'error')
-                    return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True, 'myevents':usersevents})
+                    flash("Hey there, "+ session['username'] +" welcome to Bright-Events", 'error')
+                    return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':True, 'myevents':usersevents})
                 flash("Hey there Anonymous welcome to Bright-Events", 'error')
-                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False,'myevents':usersevents})
+                return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':False,'myevents':usersevents})
             if 'user' in session:
-                flash("Hey there, "+ session['user'] +" welcome to Bright-Events, There are no events at the moment", 'error')
-                return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':True, 'myevents':usersevents})
+                flash("Hey there, "+ session['username'] +" welcome to Bright-Events, There are no events at the moment", 'error')
+                return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':True, 'myevents':usersevents})
             flash("Hey there, Anonymous welcome to Bright-Events, There are no events at the moment", 'error')
-            return render_template("home.html", data = {'events':resp.get('message'), 'logged_in':False, 'myevents':usersevents})
+            return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':False, 'myevents':usersevents})
         else:
             flash(resp.get("message")+" please refresh", 'error')
             return render_template("home.html", data = {'events':[], 'myevents':usersevents})
@@ -170,7 +174,7 @@ def editevent():
     }
     resp = requests.put("http://127.0.0.1:5000/api/v1/events/"+orginalname, data=event_data).json()
     if resp.get('success'):
-        flash(resp.get('message'), 'error')
+        flash(resp.get('payload'), 'error')
         return redirect(url_for('flasky.dashboard'))
     flash(resp.get('message'), 'error')
     return redirect(url_for('flasky.dashboard'))
@@ -178,7 +182,7 @@ def editevent():
 def deleteevent(eventname):
     resp = requests.delete("http://127.0.0.1:5000/api/v1/events/"+eventname).json()
     if resp.get('success'):
-        flash(resp.get('message'), 'error')
+        flash(resp.get('payload'), 'error')
         return redirect(url_for('flasky.dashboard'))
     flash(resp.get('message'), 'error')
     return redirect(url_for('flasky.dashboard'))

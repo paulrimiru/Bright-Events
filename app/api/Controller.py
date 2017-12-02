@@ -27,7 +27,7 @@ class Controller(object):
         resp = self.users.getUser(email)
         if resp.get('success'):
             if password == resp.get('message').get('password'):
-                return {'success':True, 'payload':{'email':email, 'id':resp.get('id')}}
+                return {'success':True, 'payload':{'username':resp.get('message').get('username'), 'id':resp.get('id')}}
             return {'success':False, 'message':'user credentials wrong'}
         return {'success':False, 'message':resp.get('message')}
     def resetPassword(self, email, newPass):
@@ -63,11 +63,12 @@ class Controller(object):
                 myevents.append(resp.get('message').get(key))
             return {'success':True, 'payload':myevents}
         return {'success':False, 'message':resp.get('message')}
-    def retriveSingelEvent(self, email, eventname):
+    def retriveSingelEvent(self, user_id, event_id):
         """
         gets single event
         """
-        resp = self.events.getEvent(email, eventname)
+        resp = self.events.getEvent(user_id, event_id)
+        print(resp)
         if resp.get("success"):
             return {'success':True, "payload":resp.get("message")}
         return {'success':False, "message":resp.get("message")}

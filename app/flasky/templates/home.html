@@ -75,7 +75,7 @@
                     <div class="modal" id="enteremail">
                         <div class="container">
                             <div class="row">
-                                <form action="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" method='POST' class="modal-form">
+                                <form action="{{ url_for('flasky.rsvps',event=event.get('id'), creator=event.get('creator'))}}" method='POST' class="modal-form">
                                     <div class="row"  data-aos="zoom-in">
                                         <div class="input-field col s12">
                                             <input type="text" id="email" name="email" >

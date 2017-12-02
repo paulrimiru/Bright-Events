@@ -14,7 +14,7 @@ def auth_required(func):
     @wraps(func)
     def auth(*args, **kargs):
         """checks for if the user is logged in through the session"""
-        if not mysession['signed_in']:
+        if 'signed_in' not in mysession or not mysession['signed_in']:
             return {"success":False,
                     'message': 'Authentication is required to access this resource'}, 401
         return func(*args, **kargs)
@@ -66,7 +66,6 @@ class Logout(LogoutParams, Resource):
         Triggered by a get request and logs out the user
         """
         args = self.param.parse_args()
-        print(args)
         if 'user' in mysession:
             if mysession['user'] == int(args['id']):
                 mysession.pop('user')
@@ -136,8 +135,13 @@ class ManageEvent(EventParams, Resource):
     """
     @auth_required
     def get(self, eventId):
-        resp = CONTROLLER.retrieveEvent(int(eventId))
+        if eventId:
+            resp = CONTROLLER.retriveSingelEvent(int(mysession['user']), int(eventId))
+            if resp.get('success'):
+                return resp, 201
+        resp = CONTROLLER.retrieveEvent(int(mysession['user']))
         if resp.get('success'):
+            print(resp)
             return resp, 201
         return resp, 401
 
@@ -155,7 +159,7 @@ class ManageEvent(EventParams, Resource):
         triggered by a put request and edits a specified event
         """
         args = self.param.parse_args()
-        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'], int(eventId)).get('message').get('rsvp')
+        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'], int(eventId)).get('payload').get('rsvp')
         event_data = {
             'name':args['name'],
             'location':args['location'],
