@@ -46,9 +46,9 @@
                                 <br>
                                 Sponsored by : {{event.get('creator')}}
                             </div>
-                            {% if not event.get('name') in data.get('myevents')%}
+                            {% if not event.get('creator') == data.get('id')%}
                             {% if data.get('logged_in') %}
-                            <form action="{{ url_for('flasky.rsvps',event=event.get('name'), creator=event.get('creator'))}}" method="POST">
+                            <form action="{{ url_for('flasky.rsvps',event=event.get('id'), creator=event.get('creator'))}}" method="POST">
                                 <input type="hidden" value="">
                                 <div class="card-action">
                                     <button type="submit" class="btn-floating waves-effect waves-light red darken-1 tooltipped" data-position="bottom" data-delay="50" data-tooltip="RSVP this event">

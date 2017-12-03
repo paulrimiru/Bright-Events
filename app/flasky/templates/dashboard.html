@@ -2,33 +2,21 @@
 {% block title %} Dashboard {% endblock%}
 <body>
     {% block navbar %}
-        <ul id="options" class="dropdown-content">
-            
-            <li><a href="#">Contacts</a></li>
-            <li><a href="#">About us</a></li>
-            <li class="divider"></li>
-            <li><a href="{{ url_for('flasky.login') }}">Log out</a></li>
-        </ul>
+    
         <nav class="nav-extended">
             <div class="nav-wrapper">
                 <a href="#!" class="brand-logo">Bright Events</a>
                 <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>            
                 <ul class="right hide-on-med-and-down">
                     <li><a href="{{ url_for('flasky.home') }}">Home</a></li>
-                    <li><a class="dropdown-button" href="#!" data-activates="options">Options<i class="material-icons right">arrow_drop_down</i></a></li>
+                    <li><a href="{{ url_for('flasky.login') }}">logout</a></li>
                     
                 </ul>
                 <div class="side-nav" id="mobile-nav">
                     <span class="form-subheader prof-name">{{ data.get('user') }}</span>
                     <ul>
                         <li><a href="{{ url_for('flasky.home') }}">Home</a></li>
-                        <li><a href="{{ url_for('flasky.login') }}">logout</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#">Contacts</a></li>
-                        <li><a href="#">About us</a></li>
-                        <li class="divider"></li>
-        
+                        <li><a href="{{ url_for('flasky.login') }}">logout</a></li>        
                     </ul>
                 </div>
                 
