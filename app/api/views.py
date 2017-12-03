@@ -180,8 +180,10 @@ class Rsvp(RsvpParams, Resource):
         """
         Triggered by a post method and adds user to rsvp list
         """
+        
         args = self.param.parse_args()
-        resp = CONTROLLER.addRsvp(int(args['creator']), int(eventId), args['clientEmail'])
+        print(">>>creator", args['creator'])
+        resp = CONTROLLER.addRsvp(int(mysession['user']), int(eventId), args['clientEmail'])
         if resp.get('success'):
             return resp, 201
         return resp, 409
