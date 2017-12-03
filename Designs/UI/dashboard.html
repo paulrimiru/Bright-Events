@@ -58,7 +58,6 @@
                 <span class="div-header">My events</span>
                 <ul>
                     <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                        
                         <div class="card sticky-action">
                             <div class="card-image waves-effect waves-block waves-light">
                             </div>
@@ -69,13 +68,13 @@
                                 Event location and time
                             </div>
                             <div class="card-action">
-                                <a href="#" class="btn-floating waves-effect waves-light red darken-1">
+                                <a href="#deleteEvent" class="btn-floating waves-effect waves-light red darken-1 modal-trigger">
                                     <i class="material-icons">delete</i>
                                 </a>
-                                <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
+                                <a href="#editEvent" class="btn-floating waves-effect waves-light yellow darken-1 modal-trigger">
                                         <i class="material-icons">edit</i>
                                     </a>
-                                <a href="#" class="btn-floating waves-effect waves-light green darken-1">
+                                <a href="#viewrsvp" class="btn-floating waves-effect waves-light green darken-1 modal-trigger">
                                         <i class="material-icons">list</i>
                                     </a>
                             </div>
@@ -85,88 +84,97 @@
                             </div>  
                         </div>
                     </li>
-                    <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                            <div class="card sticky-action">
-                                <div class="card-image waves-effect waves-block waves-light">
-                                </div>
-                                <div class="card-content">
-                                    <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                    <p>Event description</p>
-                                    <br>
-                                    Event location and time
-                                </div>
-                                <div class="card-action">
-                                    <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                        <i class="material-icons">delete</i>
-                                    </a>
-                                    <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                            <i class="material-icons">edit</i>
-                                        </a>
-                                    <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                            <i class="material-icons">list</i>
-                                        </a>
-                                </div>
-                                <div class="card-reveal">
-                                    <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                    <p>More event information.</p>
-                                </div>  
-                            </div>
-                        </li>
-                        <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                                <div class="card sticky-action">
-                                    <div class="card-image waves-effect waves-block waves-light">
+                </ul>
+
+                <div class="modal" id="viewrsvp">
+                    <div class="rsvp-div">
+                        <span class="div-header">RSVP List for event</span>
+                        <ul>
+                            <li  data-aos="zoom-in" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                                <div class="col s12">
+                                    <div class="card-panel grey lighten-5 z-depth-1">
+                                        <div class="row valign-wrapper">
+        
+                                        <div class="col s12">
+                                            <div class="row">
+                                                <h4 class="card-title purple-text text-darken-4">myemail@gmail.com</h4>
+                                            </div>
+                                            <div class="row">
+                                                <h5 class="black-text">Coming</h5>
+                                            </div>
+                                        </div>
+                                        </div>
                                     </div>
-                                    <div class="card-content">
-                                        <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                        <p>Event description</p>
-                                        <br>
-                                        Event location and time
-                                    </div>
-                                    <div class="card-action">
-                                        <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                            <i class="material-icons">delete</i>
-                                        </a>
-                                        <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                                <i class="material-icons">edit</i>
-                                            </a>
-                                        <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                                <i class="material-icons">list</i>
-                                            </a>
-                                    </div>
-                                    <div class="card-reveal">
-                                        <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                        <p>More event information.</p>
-                                    </div>  
                                 </div>
                             </li>
-                            <li id="event-item" data-aos="zoom-in" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="800">
-                                    <div class="card sticky-action">
-                                        <div class="card-image waves-effect waves-block waves-light">
-                                        </div>
-                                        <div class="card-content">
-                                            <span class="card-title activator grey-text text-darken-4">Event Title<i class="material-icons right">more_vert</i></span>
-                                            <p>Event description</p>
-                                            <br>
-                                            Event location and time
-                                        </div>
-                                        <div class="card-action">
-                                            <a href="#" class="btn-floating waves-effect waves-light red darken-1">
-                                                <i class="material-icons">delete</i>
-                                            </a>
-                                            <a href="#" class="btn-floating waves-effect waves-light yellow darken-1">
-                                                    <i class="material-icons">edit</i>
-                                                </a>
-                                            <a href="#" class="btn-floating waves-effect waves-light green darken-1">
-                                                    <i class="material-icons">list</i>
-                                                </a>
-                                        </div>
-                                        <div class="card-reveal">
-                                            <span class="card-title grey-text text-darken-4">EventTitle<i class="material-icons right">close</i></span>
-                                            <p>More event information.</p>
-                                        </div>  
+                           
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal card" id="deleteEvent">
+                    <div class="card-content container">
+                        <div class="row ">
+                            <span class="card-title col s4 center modal-title">Delete</span>
+                        </div>
+                        <div class="row module-para">
+                            <p>
+                                Are you sure you want to delete this event?
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <a href="#">Yes</a>
+                        <a href="" class="modal-action modal-close">No</a>
+                    </div>
+                </div>
+        
+                <div class="modal" id="editEvent">
+                    <div class="container">
+                        <div class="row">
+                            <form action="#" method='POST' class="modal-form">
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input type="hidden" id="originalname" name="originalname" value="{{event.get('id')}}">
                                     </div>
-                                </li>
-                </ul>
+                                </div>
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input type="text" id="name" name="name" value="Event name">
+                                        <label for="name">Event name</label>
+                                    </div>
+                                </div>
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input  type="text" class="validate" id="location" name="location" value="Location">
+                                        <label for="location">Event Location</label>
+                                    </div>
+                                </div>
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input type='text' class='validate' id="category" name="category" value="category">
+                                        <label for="category">Event Category</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input type="text" class="datepicker" id="time" name="time" value="4 November 2017">
+                                    </div>
+                                </div>
+                                <br>
+                                <center>
+                                    <button class="btn waves-effect waves-light purple darken-4" 
+                                        type="submit" name="action" data-aos="fade-up">
+                                        Submit
+                                    </button>
+                                </center>
+                            </form>
+            
+                        </div>
+            
+                    </div>
+                </div>
+
                 <div class="fixed-action-btn">
                     <a class="btn-floating btn-large purple darken-1"><i class="material-icons">add</i></a>
                 </div>
