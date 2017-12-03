@@ -27,7 +27,9 @@ class Controller(object):
         resp = self.users.getUser(email)
         if resp.get('success'):
             if password == resp.get('message').get('password'):
-                return {'success':True, 'payload':{'username':resp.get('message').get('username'), 'id':resp.get('id')}}
+                return {'success':True,
+                        'payload':{'username':resp.get('message').get('username'),
+                                   'id':resp.get('id')}}
             return {'success':False, 'message':'user credentials wrong'}
         return {'success':False, 'message':resp.get('message')}
     def resetPassword(self, email, newPass):

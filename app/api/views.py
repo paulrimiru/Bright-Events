@@ -7,6 +7,8 @@ from flask_restful import  Resource
 from .Controller import Controller
 from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams, LogoutParams
 
+
+import re
 CONTROLLER = Controller()
 mysession = {}
 def auth_required(func):
@@ -19,7 +21,15 @@ def auth_required(func):
                     'message': 'Authentication is required to access this resource'}, 401
         return func(*args, **kargs)
     return auth
-
+def validateEmail(email):
+    regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+    if regex.match(email):
+        return True
+    return False
+def validatePassword(password):
+    if len(password) < 6:
+        return False
+    return True
 class Index(Resource):
     def get(self):
         return {'success':True, 'message':'welcome to Bright Events API'}
@@ -33,10 +43,20 @@ class Register(RegisterParams, Resource):
         listens for a post request then registers user
         """
         args = self.param.parse_args()
+        username = args['username']
+        email = args['email']
+        password = args['password']
+
+        if not validateEmail(email):
+            return {'success':False, 'message':'invalid email'}
+        if not validatePassword(password):
+            return {'success':False, 
+                    'message':'your password is weak, enter a password with 6 characters'}
+
         user_data = {
-            "username":args['username'],
-            "email":args['email'],
-            "password":args['password']
+            "username":username,
+            "email":email,
+            "password":password
         }
         resp = CONTROLLER.registerUser(user_data)
         if resp.get('success'):
@@ -70,7 +90,6 @@ class Logout(LogoutParams, Resource):
             if mysession['user'] == int(args['id']):
                 mysession.pop('user')
                 mysession['signed_in'] = False
-
                 return {'success':True, 'payload':None}
             else:
                 return {'success':False, 'message':'user provided is not in session'}
@@ -135,6 +154,9 @@ class ManageEvent(EventParams, Resource):
     """
     @auth_required
     def get(self, eventId):
+        """
+        gets events for a specific user or specific event if event id is provided
+        """
         if eventId:
             resp = CONTROLLER.retriveSingelEvent(int(mysession['user']), int(eventId))
             if resp.get('success'):
@@ -159,7 +181,8 @@ class ManageEvent(EventParams, Resource):
         triggered by a put request and edits a specified event
         """
         args = self.param.parse_args()
-        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'], int(eventId)).get('payload').get('rsvp')
+        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'],
+                                             int(eventId)).get('payload').get('rsvp')
         event_data = {
             'name':args['name'],
             'location':args['location'],
@@ -180,10 +203,12 @@ class Rsvp(RsvpParams, Resource):
         """
         Triggered by a post method and adds user to rsvp list
         """
-        
         args = self.param.parse_args()
-        print(">>>creator", args['creator'])
-        resp = CONTROLLER.addRsvp(int(mysession['user']), int(eventId), args['clientEmail'])
+        email = args['clientEmail']
+        creator = args['creator']
+        if not validateEmail(email):
+            return {'success':False, 'message':'invalid email'}
+        resp = CONTROLLER.addRsvp(int(creator), int(eventId), email)
         if resp.get('success'):
             return resp, 201
         return resp, 409

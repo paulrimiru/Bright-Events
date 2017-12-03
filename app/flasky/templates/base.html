@@ -23,17 +23,13 @@
     {% block navbar %}
     <nav>
         <div class="nav-wrapper">
-            <a href="/index" class="brand-logo">Bright Events</a>
+            <a href="{{ url_for('flasky.home') }}" class="brand-logo">Bright Events</a>
             <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
-                <li><a href="/dashboard">Home</a></li>
-                <li><a href="/contacts">Contacts</a></li>
-                <li><a href="/about">About us</a></li>
+                <li><a href="{{ url_for('flasky.home') }}">Home</a></li>
             </ul>
             <ul class="side-nav" id="mobile-nav">
-                <li><a href="/dashboard">Home</a></li>
-                <li><a href="/contacts">Contacts</a></li>
-                <li><a href="/about">About us</a></li>
+                <li><a href="{{ url_for('flasky.home') }}">Home</a></li>
             </ul>
         </div>
     </nav>
