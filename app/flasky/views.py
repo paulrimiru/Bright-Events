@@ -28,7 +28,7 @@ def register():
             'email':email,
             'password':password
         }
-        resp = requests.post("http://127.0.0.1:5000/api/v1/auth/register",data=use_data).json()
+        resp = requests.post("https://paul-bright-events.herokuapp.com/api/v1/auth/register",data=use_data).json()
         if resp.get('success'):
             flash("Account created successfully", 'error')
             return redirect(url_for('flasky.index'))
@@ -47,8 +47,9 @@ def login():
             'password':password
         }
 
-        resp = requests.post("http://127.0.0.1:5000/api/v1/auth/login", data=user_data).json()
+        resp = requests.post("https://paul-bright-events.herokuapp.com/api/v1/auth/login", data=user_data).json()
         if resp.get('success'):
+            print(resp)
             session['user'] = resp.get('payload').get('id')
             session['username'] = resp.get('payload').get('username')
             session['email'] = email
@@ -61,7 +62,7 @@ def login():
         user_data = {
             'id':session['user']
         }
-        resp = requests.post("http://127.0.0.1:5000/api/v1/auth/logout", data=user_data).json()
+        resp = requests.post("https://paul-bright-events.herokuapp.com/api/v1/auth/logout", data=user_data).json()
         if resp.get('success'):
             session.pop('user')
             session.pop('username')
@@ -75,7 +76,7 @@ def login():
 @flasky.route('/dashboard', methods = ['GET', 'POST'])
 @auth_required
 def dashboard():
-    resp = requests.get("http://127.0.0.1:5000/api/v1/events/"+str(session['user'])).json()
+    resp = requests.get("https://paul-bright-events.herokuapp.com/api/v1/events/"+str(session['user'])).json()
     print(">>Dashboard", resp)
     if resp.get('success'):
         rsvplist = []
@@ -103,7 +104,7 @@ def events():
             'creator':session['user'],
             'time':date
         }
-        resp = requests.post("http://127.0.0.1:5000/api/v1/events", data=event_data).json()
+        resp = requests.post("https://paul-bright-events.herokuapp.com/api/v1/events", data=event_data).json()
         if resp.get('success'):
             flash("Event has been saved successfully", 'success')
             return redirect(url_for('flasky.dashboard'))
@@ -116,7 +117,7 @@ def rsvps(creator, event):
         clientmail = request.form.get('email', None)
         if not clientmail:
             clientmail = session['email']
-        resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
+        resp = requests.post("https://paul-bright-events.herokuapp.com/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
 
         if resp.get('success'):
             myrsvp = ','.join(resp.get('payload'))
@@ -126,7 +127,7 @@ def rsvps(creator, event):
             flash(resp.get('message'), 'error')
             return redirect(url_for('flasky.home'))
     elif request.method == 'GET':
-        resp = requests.get("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'clientEmail':session['user']}).json()
+        resp = requests.get("https://paul-bright-events.herokuapp.com/api/v1/event/"+event+"/rsvp", data={'clientEmail':session['user']}).json()
         if resp.get('success'):
             myrsvp = ','.join(resp.get('payload'))
             flash("Fetched rsvp for event"+event, 'error')
@@ -138,7 +139,7 @@ def rsvps(creator, event):
 @flasky.route('/home', methods=['POST', 'GET'])
 def home():
     if request.method == 'GET':
-        resp = requests.get("http://127.0.0.1:5000/api/v1/events").json()
+        resp = requests.get("https://paul-bright-events.herokuapp.com/api/v1/events").json()
         print("Home >>",resp)
         usersevents = []
         if resp.get('success'):
@@ -171,7 +172,7 @@ def editevent():
         'creator':session['user'],
         'time':date
     }
-    resp = requests.put("http://127.0.0.1:5000/api/v1/events/"+orginalname, data=event_data).json()
+    resp = requests.put("https://paul-bright-events.herokuapp.com/api/v1/events/"+orginalname, data=event_data).json()
     if resp.get('success'):
         flash("Edited event successfully", 'error')
         return redirect(url_for('flasky.dashboard'))
@@ -179,7 +180,7 @@ def editevent():
     return redirect(url_for('flasky.dashboard'))
 @flasky.route('/deleteevent/<eventname>')
 def deleteevent(eventname):
-    resp = requests.delete("http://127.0.0.1:5000/api/v1/events/"+eventname).json()
+    resp = requests.delete("https://paul-bright-events.herokuapp.com/api/v1/events/"+eventname).json()
     if resp.get('success'):
         flash(resp.get('payload'), 'error')
         return redirect(url_for('flasky.dashboard'))
