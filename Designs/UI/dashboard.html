@@ -176,7 +176,7 @@
                 </div>
 
                 <div class="fixed-action-btn">
-                    <a class="btn-floating btn-large purple darken-1"><i class="material-icons">add</i></a>
+                    <a class="btn-floating btn-large purple darken-1 modal-trigger" href="#addeventmodal"><i class="material-icons">add</i></a>
                 </div>
             </div>
             <div class="col s6 rsvp-div">
@@ -200,6 +200,35 @@
                         </div>
                     </li>
                 </ul>
+            </div>
+
+            <div class="modal" id="addeventmodal">
+                <div class="container">
+                    <div class="row">
+                        <form action="">
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input type="text" id="name">
+                                        <label for="name">Event name</label>
+                                    </div>
+                                </div>
+                                <div class="row"  data-aos="zoom-in">
+                                    <div class="input-field col s12">
+                                        <input  type="text" class="validate" id="location">
+                                        <label for="location">Event Location</label>
+                                    </div>
+                                </div>
+                                <input type="text" class="datepicker">
+                                <br>
+                                <center>
+                                    <button class="btn waves-effect waves-light purple darken-4" 
+                                        type="submit" name="action" data-aos="fade-up">Submit</button>
+                                </center>
+                        </form>
+        
+                    </div>
+        
+                </div>
             </div>
         </div>
     </div>
