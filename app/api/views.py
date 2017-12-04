@@ -50,8 +50,12 @@ class Register(RegisterParams, Resource):
         if not validateEmail(email):
             return {'success':False, 'message':'invalid email'}
         if not validatePassword(password):
+<<<<<<< HEAD
             return {'success':False, 
                     'message':'your password is weak, enter a password with 6 characters'}
+=======
+            return {'success':False, 'message':'your password is weak, enter a password with 6 characters'}
+>>>>>>> 8deb555786fe3fd5ed2ccb44af5eadfe2edb090d
 
         user_data = {
             "username":username,
@@ -72,6 +76,7 @@ class Authentication(LoginParams, Resource):
         """
         args = self.param.parse_args()
         resp = CONTROLLER.loginUser(args['email'], args['password'])
+        print(">>loggin in", resp.get('payload').get('id'))
         if resp.get('success'):
             mysession['user'] = resp.get('payload').get('id')
             mysession['signed_in'] = True

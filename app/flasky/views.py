@@ -40,6 +40,12 @@ def register():
         resp = requests.post("http://127.0.0.1:5000/api/v1/auth/register", data=use_data).json()
         if resp.get('success'):
             flash("Account created successfully", 'error')
+<<<<<<< HEAD
+=======
+            return redirect(url_for('flasky.index'))
+        else:
+            flash(resp.get('message'), 'error')
+>>>>>>> 8deb555786fe3fd5ed2ccb44af5eadfe2edb090d
             return redirect(url_for('flasky.index'))
         flash(resp.get('message'), 'error')
         return redirect(url_for('flasky.index'))
@@ -137,8 +143,12 @@ def rsvps(creator, event):
         clientmail = request.form.get('email', None)
         if not clientmail:
             clientmail = session['email']
+<<<<<<< HEAD
         resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp",
                              data={'creator':creator, 'clientEmail':clientmail}).json()
+=======
+        resp = requests.post("http://127.0.0.1:5000/api/v1/event/"+event+"/rsvp", data={'creator':creator, 'clientEmail':clientmail}).json()
+>>>>>>> 8deb555786fe3fd5ed2ccb44af5eadfe2edb090d
 
         if resp.get('success'):
             myrsvp = ','.join(resp.get('payload'))
@@ -167,6 +177,7 @@ def home():
             if resp.get('payload'):
                 if 'user' in session:
                     flash("Hey there, "+ session['username'] +" welcome to Bright-Events", 'error')
+<<<<<<< HEAD
                     return render_template("home.html",
                                            data={'events':resp.get('payload'),
                                                  'logged_in':True, 'id':session['user']})
@@ -185,6 +196,19 @@ def home():
                                                       'logged_in':False, 'id':0})
         flash(resp.get("message")+" please refresh", 'error')
         return render_template("home.html", data={'events':[], 'id':0})
+=======
+                    return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':True, 'id':session['user']})
+                flash("Hey there Anonymous welcome to Bright-Events", 'error')
+                return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':False,'id':0})
+            if 'user' in session:
+                flash("Hey there, "+ session['username'] +" welcome to Bright-Events, There are no events at the moment", 'error')
+                return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':True, 'id':session['user']})
+            flash("Hey there, Anonymous welcome to Bright-Events, There are no events at the moment", 'error')
+            return render_template("home.html", data = {'events':resp.get('payload'), 'logged_in':False, 'id':0})
+        else:
+            flash(resp.get("message")+" please refresh", 'error')
+            return render_template("home.html", data = {'events':[], 'id':0})
+>>>>>>> 8deb555786fe3fd5ed2ccb44af5eadfe2edb090d
 
 @flasky.route('/editevent', methods=['POST'])
 def editevent():
