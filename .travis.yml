@@ -10,6 +10,6 @@ notifications:
     on_success: change
 # command to run tests
 script: 
-  nosetests --with-coverage --cover-package=app/api && coverage report
+  nosetests --with-coverage --cover-package=app/api/models && coverage report
 after_success:
   coveralls
