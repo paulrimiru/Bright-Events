@@ -50,12 +50,8 @@ class Register(RegisterParams, Resource):
         if not validateEmail(email):
             return {'success':False, 'message':'invalid email'}
         if not validatePassword(password):
-<<<<<<< HEAD
-            return {'success':False, 
+            return {'success':False,
                     'message':'your password is weak, enter a password with 6 characters'}
-=======
-            return {'success':False, 'message':'your password is weak, enter a password with 6 characters'}
->>>>>>> 8deb555786fe3fd5ed2ccb44af5eadfe2edb090d
 
         user_data = {
             "username":username,
