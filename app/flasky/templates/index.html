@@ -1,8 +1,5 @@
 {% extends "base.html" %}
 <body>
-    {% if error %}
-        <p class=error><strong>Error:</strong> {{ error }}
-    {% endif %}
     {% block content %}
     <div class="my-class">
             <div class="container">
@@ -21,7 +18,12 @@
                                 between TOTALLY SOLD OUT and Tickets still available.
                             </p>
                         </div>
-                        
+                        <br>
+                        <div class="row ">
+                            <div class="col s4 offset-s4">
+                                <a class="waves-effect waves-light btn-large purple darken-1" href="{{ url_for('flasky.home') }}">Home</a>
+                            </div>
+                        </div>
                     </div>
                     <div id="sign-card" class="col s12 m6 l6">
                         <div class="contaner card"  data-aos="fade-left" data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="1200">
@@ -33,33 +35,33 @@
                             </div>
                             <div class="card-content grey lighten-4">
                                 <div id="signin" class="row" >
-                                    <form action="",method="POST", class="col s12", data-aos="zoom-in">
+                                    <form action="{{ url_for('flasky.login')}}" method="POST"  class="col s12" data-aos="zoom-in">
                                         <div >
                                             <h3 class="form-header" data-aos="zoom-in">Hey there</h3>
                                             <h6 class="form-subheader" data-aos="zoom-in">Glad to have you back</h2>
 
                                             <div class="row"  data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input type="email" class="validate" id="email">
+                                                    <input type="email" class="validate" id="email" name="email">
                                                     <label for="email">Email</label>
                                                 </div>
                                             </div>
                                             <div class="row"  data-aos="zoom-in">
                                                 <div class="input-field col s12">
-                                                    <input type="password" class="validate" id="password">
+                                                    <input type="password" class="validate" id="password" name="password">
                                                     <label for="password">Password</label>
                                                 </div>
                                             </div>
                                             <br>
                                             <center>
                                                 <input class="btn waves-effect waves-light purple darken-4" 
-                                                    type="submit" name="action" data-aos="fade-up">Sign in</input>
+                                                    type="submit" data-aos="fade-up" value="Sign in"></input>
                                             </center>
                                         </div>
                                     </form>
                                 </div>
                                 <div id="signup" class="row">
-                                    <form class="col s12" action="/api/auth/register" method="POST" >
+                                    <form class="col s12" action="{{ url_for('flasky.register')}}" method="POST" >
                                         <div >
                                             <h3 class="form-header" data-aos="zoom-in">Welcome</h3>                                                
                                             <div class="row" data-aos="zoom-in">
@@ -87,8 +89,8 @@
                                                 </div>
                                             </div>
                                             <center>
-                                                <button  class="btn waves-effect waves-light purple darken-4" 
-                                                action="/api/auth/register" type="submit" value="submit" data-aos="fade-up">Sign in</button>
+                                                <input class="btn waves-effect waves-light purple darken-4" 
+                                                    type="submit" data-aos="fade-up" value="Sign up"></input>
                                             </center>
                                         </div>
                                     </form>
