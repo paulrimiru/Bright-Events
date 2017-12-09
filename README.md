@@ -1,9 +1,8 @@
 # Bright-Events
 
 [![Build Status](https://travis-ci.org/PaulKariukiRimiru/Bright-Events.svg?branch=ft-setting_up_coverage_and_ci-%23153023831)](https://travis-ci.org/PaulKariukiRimiru/Bright-Events)
-[![Coverage Status](https://coveralls.io/repos/github/PaulKariukiRimiru/Bright-Events/badge.svg)](https://coveralls.io/github/PaulKariukiRimiru/Bright-Events)
+[![Coverage Status](https://coveralls.io/repos/github/PaulKariukiRimiru/Bright-Events/badge.svg?branch=develop)](https://coveralls.io/github/PaulKariukiRimiru/Bright-Events?branch=develop)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/527c959f0b8e4f63b7c0b0daad80957e)](https://www.codacy.com/app/paulrimiru/Bright-Events?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PaulKariukiRimiru/Bright-Events&amp;utm_campaign=Badge_Grade)
-[![Code Health](https://landscape.io/github/PaulKariukiRimiru/Bright-Events/master/landscape.svg?style=flat)](https://landscape.io/github/PaulKariukiRimiru/Bright-Events/master)
 
 Bright events provides a platform for event organizers to create and manage different types of events while making them easily accessible to target markets.
 ## Getting Started
@@ -13,6 +12,10 @@ To start development
     * Create a virtual environment in your project  folder
 
     * Use https://github.com/PaulKariukiRimiru/Bright-Events.git to clone the repository
+
+    * Activate the virtual environment
+
+    * Install dependencies by running `pip install -r requirements.txt`
 
     * Thats it you are ready to go.
 
@@ -48,6 +51,8 @@ To run the tests
 
 * Materialize - For styling
 
+* AOS.js - for animation
+
 ## Authors
 
 * **Paul Rimiru** - *Initial work* - [PaulKariukiRimiru](https://github.com/PaulKariukiRimiru)
@@ -55,3 +60,7 @@ To run the tests
 # Github pages
 
 [Bright Events](https://PaulKariukiRimiru.github.io/Bright-Events/)
+
+# Heroku
+
+[Bright Events](https://paul-bright-events.herokuapp.com/flasky)

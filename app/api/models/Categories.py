@@ -13,9 +13,8 @@ class Categories(object):
         """
         if category.get('name') in self.categories_dict:
             return {'success':False, 'message':"Category already exists"}
-        else:
-            self.categories_dict.update({category.get('name'): category})
-            return {'success':True, 'message':'Category created successfully'}
+        self.categories_dict.update({category.get('name'): category})
+        return {'success':True, 'message':'Category created successfully'}
     def getallcategories(self):
         """
         Method used to get all categories
@@ -28,8 +27,7 @@ class Categories(object):
         if name in self.categories_dict:
             self.categories_dict.pop(name)
             return {'success':True, 'message':'Category deleted successfully'}
-        else:
-            return {'success':False, 'message':'Category not found'}
+        return {'success':False, 'message':'Category not found'}
     def updatecategory(self, name, new_category):
         """
         Method used to delete a category
@@ -39,16 +37,13 @@ class Categories(object):
             resp = self.createcategory(new_category)
             if resp.get('success'):
                 return {'success':True, 'message':"Category update successfully"}
-            else:
-                return {'success':False, 'message':resp.get('message')}
-        else:
-            return {'success':False, 'message':delresp.get('message')}
+            return {'success':False, 'message':resp.get('message')}
+        return {'success':False, 'message':delresp.get('message')}
     def getsinglecategory(self, name):
         """
         method used to retrieve a single category
         """
         if name in self.categories_dict:
             return {'success':True, 'message':self.categories_dict.get(name)}
-        else:
-            return {'success':True, 'message':"category not found"}
+        return {'success':True, 'message':"category not found"}
         

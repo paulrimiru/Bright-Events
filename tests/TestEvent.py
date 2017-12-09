@@ -1,81 +1,120 @@
+"""
+tests manipulation of the event model
+"""
 import unittest
-from app.Events import Events
+from app.api.models.Events import Events
 
 class TestEvents(unittest.TestCase):
+    """
+    class tests events manipulation
+    """
     def setUp(self):
         self.event = Events()
         self.event_data = {
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'test@bright.com',
+            'creator':1,
             'rsvp':[]
         }
         self.event_data2 = {
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'test2@bright.com',
+            'creator':2,
             'rsvp':[]
         }
 
     def testcreateEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
-        self.assertEqual(1, len(self.event.getEvents().get('message')))
+        """
+        class tests creation of events
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
+        self.assertIn(1, self.event.getEvents().get('message'))
 
     def testGetUserEvents(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        test retrival of users events
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
 
-        resp = self.event.getUserEvents("test@bright.com")
+        resp = self.event.getUserEvents(1)
         self.assertTrue(resp.get('success'))
         self.assertEqual(1, len(resp.get('message')))
     def testDublicateEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests creation of duplicate users
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
 
-        self.assertFalse(self.event.create_event(self.event_data).get('success')) 
+        self.assertFalse(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
     def testDifferentUserSameEventName(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests creation of multiple events with same name by different users
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
-        self.assertTrue(self.event.create_event(self.event_data2).get('success')) 
+        self.assertTrue(self.event.create_event(self.event_data2).get('success'))
         self.assertEqual(2, len(self.event.getEvents().get('message')))
     def testGetSingleEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests retrieval of a single event
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
 
-        resp = self.event.getEvent('test@bright.com','test event')
+        resp = self.event.getEvent(1, 11)
         print(resp)
         self.assertTrue(resp.get('success'))
         self.assertIn('creator', resp.get("message"))
     def testRsvpEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests retrieval of rsvp of an event
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
-        resp = self.event.rsvpEvent('test@bright.com','test event', 'test2@bright.com')
+        resp = self.event.rsvpEvent(1, 11, 'myemail@email.com')
+        print(resp)
         self.assertTrue(resp.get('success'))
-        self.assertIn('test2@bright.com', resp.get('message'))
+        self.assertIn('myemail@email.com', resp.get('message'))
     def testDeleteEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests deletion of events
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
-        resp = self.event.deleteEvent('test@bright.com', 'test event')
-        self.assertTrue(resp.get('success')) 
-        print(self.event.getUserEvents("test@bright.com").get('message'))
-        self.assertEqual("No events for this user", self.event.getUserEvents("test@bright.com").get('message'))
+        resp = self.event.deleteEvent(1, 11)
+        self.assertTrue(resp.get('success'))
+        print(self.event.getUserEvents(1).get('message'))
+        self.assertEqual("No events for this user",
+                         self.event.getUserEvents(1).get('message'))
     def testEditEvent(self):
-        self.assertTrue(self.event.create_event(self.event_data).get('success')) 
+        """
+        tests editing of an event
+        """
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
 
         event_data2 = {
             'name':'myevent',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'test@bright.com',
+            'creator':1,
             'rsvp':[]
         }
 
-        resp = self.event.editEvent('test@bright.com', 'test event', event_data2)
+        resp = self.event.editEvent(1, 11, event_data2)
 
         print(resp)
         self.assertTrue(resp.get('success'))
-        self.assertIn('myevent', self.event.getUserEvents("test@bright.com").get('message'))
+        self.assertEqual('myevent', resp.get('message').get('name'))
+    def testgetEventsByName(self):
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
+        self.assertEqual(1, len(self.event.getEvents().get('message')))
+        self.assertTrue(self.event.create_event(self.event_data2).get('success'))
+        self.assertEqual(2, len(self.event.getEvents().get('message')))
+
+        self.assertEqual(2, len(self.event.getEventByName("test event").get('message')))
