@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+<body>
+    {% block main %}
+    <main>
+    {% block navbar %}
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Bright Events</a>
+            <a href="#" class="button-collapse" data-activates="mobile-nav"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="{{ url_for('flasky.dashboard') }}">Dashboard</a></li>
+                {% if data.get('logged_in') %}
+                <li><a href="{{ url_for('flasky.login') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('flasky.index') }}">Login</a></li>
+                {% endif %}
+            </ul>
+            <ul class="side-nav" id="mobile-nav">
+                <li><a href="{{ url_for('flasky.dashboard') }}">Dashboard</a></li>
+                {% if data.get('logged_in') %}
+                <li><a href="{{ url_for('flasky.login') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('flasky.index') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    {% endblock %}
+    {% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                {% if data.get('events') %}
+                <ul>
+                    {% for event in data.get('events') %}
+                    <li id="event-item" data-aos="zoom-in" data-aos-offset="100" data-aos-easing="ease-in-sine" data-aos-duration="800">
+                        <div class="card sticky-action">
+                            <div class="card-image waves-effect waves-block waves-light">
+                            </div>
+                            <div class="card-content">
+                                <span class="card-title activator grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">more_vert</i></span>
+                                <p>Location:  {{ event.get('location')}}</p>
+                                <br>
+                                Happening on : {{event.get('time')}}
+                                <br>
+                                Sponsored by : {{event.get('creator')}}
+                            </div>
+                            {% if not event.get('creator') == data.get('id')%}
+                            {% if data.get('logged_in') %}
+                            <form action="{{ url_for('flasky.rsvps',event=event.get('id'), creator=event.get('creator'))}}" method="POST">
+                                <input type="hidden" value="">
+                                <div class="card-action">
+                                    <button type="submit" class="btn-floating waves-effect waves-light red darken-1 tooltipped" data-position="bottom" data-delay="50" data-tooltip="RSVP this event">
+                                        <i class="material-icons">favorite_border</i>
+                                    </button>
+                                </div>
+                            </form>
+                            {% else %}
+                            <div class="card-action">
+                                <a class="btn-floating waves-effect waves-light red darken-1 tooltipped modal-trigger" href="#enteremail" data-position="bottom" data-delay="50" data-tooltip="RSVP this event">
+                                    <i class="material-icons">favorite_border</i>
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            <div class="card-reveal">
+                                <span class="card-title grey-text text-darken-4">{{event.get('name')}}<i class="material-icons right">close</i></span>
+                                <p>Happening at:  {{ event.get('location')}}</p>
+                                <p>Happening on: {{event.get('time')}}</p>
+                                <p>Sponsored by : {{event.get('creator')}}</p>
+                            </div>  
+                        </div>
+                    </li>
+                    <div class="modal" id="enteremail">
+                        <div class="container">
+                            <div class="row">
+                                <form action="{{ url_for('flasky.rsvps',event=event.get('id'), creator=event.get('creator'))}}" method='POST' class="modal-form">
+                                    <div class="row"  data-aos="zoom-in">
+                                        <div class="input-field col s12">
+                                            <input type="text" id="email" name="email" >
+                                            <label for="email">Please enter your email address</label>
+                                        </div>
+                                    </div>
+                                    <center>
+                                        <button class="btn waves-effect waves-light purple darken-4" 
+                                            type="submit" name="action" data-aos="fade-up">
+                                            Submit
+                                        </button>
+                                    </center>
+                                </form>
+                
+                            </div>
+                
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                </ul>
+                {% else %}
+                <div class="row no-event-diver">
+                    <div class="col s4 offset-s4">
+                        <span class="div-header">No events available</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    </main>
+    {% endblock %}
+    
+    {% block footer %}
+    <footer class="page-footer">
+        <div class="container">
+        <div class="row">
+            <div class="col l6 s12">
+            <h5 class="white-text">Bright events</h5>
+            <p class="grey-text text-lighten-4">We love new friends, please contact us on info@brightevents.com</p>
+            </div>
+            <div class="col l4 offset-l2 s12">
+            <h5 class="white-text">Links</h5>
+            <ul>
+                <li><a class="grey-text text-lighten-3" href="#!">Contacts</a></li>
+                <li><a class="grey-text text-lighten-3" href="#!">About us</a></li>
+            </ul>
+            </div>
+        </div>
+        </div>
+        <div class="footer-copyright">
+        <div class="container">
+        © 2014 Copyright BrightEvents
+        <a class="grey-text text-lighten-4 right" href="#!">info@brightevents.com</a>
+        </div>
+        </div>
+    </footer>
+    {% endblock %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+    <script type="text/javascript" src="js/aos.js"></script>
+</body>
+</html>

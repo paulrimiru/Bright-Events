@@ -2,7 +2,7 @@
 Module contains controller tests
 """
 import unittest
-from app.Controller import Controller
+from app.api.Controller import Controller
 
 class TestController(unittest.TestCase):
     """
@@ -21,7 +21,14 @@ class TestController(unittest.TestCase):
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
-            'creator':'user@bright.com',
+            'creator':1,
+            'rsvp':[]
+        }
+        self.event_data3 = {
+            'name':'test event',
+            'location':'Nairobi',
+            'time':'5/6/2016',
+            'creator':2,
             'rsvp':[]
         }
         self.event_data2 = {
@@ -44,7 +51,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertTrue(loginres.get("message"))
+        self.assertEqual('test user',loginres.get("payload").get('username'))
     def testUserAddEvent(self):
         """
         tests ability for user to add events
@@ -53,10 +60,10 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertTrue(loginres.get("message"))
+        self.assertTrue(loginres.get("success"))
 
         event = self.controller.addEvent(self.event_data)
-        self.assertTrue(event.get('success'))
+        self.assertEqual('test event',event.get('payload').get('name'))
     def testAddEventWithoutCreator(self):
         """
         tests if an event can be added without a user
@@ -71,7 +78,7 @@ class TestController(unittest.TestCase):
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.loginUser('user@bright.com', 'pass123')
-        self.assertTrue(loginres.get("message"))
+        self.assertEqual('test user', loginres.get("payload").get('username'))
 
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
@@ -90,7 +97,7 @@ class TestController(unittest.TestCase):
 
         eventsresp = self.controller.retrieveAllEvents()
         self.assertTrue(resp.get('success'))
-        self.assertListEqual([self.event_data], eventsresp.get('message'))
+        self.assertListEqual([self.event_data], eventsresp.get('payload'))
     def testRetriveEventForCurrentUser(self):
         """
         tests retrieval of current users
@@ -104,9 +111,9 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        eventsresp = self.controller.retrieveEvent('user@bright.com')
+        eventsresp = self.controller.retrieveEvent(1)
         self.assertTrue(eventsresp.get('success'))
-        self.assertListEqual([self.event_data], eventsresp.get('message'))
+        self.assertListEqual([self.event_data], eventsresp.get('payload'))
     def testSaveRsvp(self):
         """
         tests addition of rsvp by users
@@ -120,9 +127,9 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        rsvp = self.controller.addRsvp('user@bright.com', 'test event', 'myemail@bright.com')
+        rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
-        self.assertIn('myemail@bright.com', rsvp.get('message'))
+        self.assertIn('myemail@bright.com', rsvp.get('payload'))
     def testRetrieveRsvp(self):
         """
         tests rettrieval of rsvp of events
@@ -136,10 +143,28 @@ class TestController(unittest.TestCase):
         event = self.controller.addEvent(self.event_data)
         self.assertTrue(event.get('success'))
 
-        rsvp = self.controller.addRsvp('user@bright.com', 'test event', 'myemail@bright.com')
+        rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
-        self.assertIn('myemail@bright.com', rsvp.get('message'))
+        self.assertIn('myemail@bright.com', rsvp.get('payload'))
 
-        retrive = self.controller.retriveRsvp('user@bright.com', 'test event')
-        self.assertIn('myemail@bright.com', retrive.get('message'))
+        retrive = self.controller.retriveRsvp(1, 11)
+        print(retrive)
+        self.assertIn('myemail@bright.com', retrive.get('payload'))
+    def testRetrieveEventsByName(self):
+        """
+        Tests to retrieve all events with specific names
+        """
+        resp = self.controller.registerUser(self.userData)
+        self.assertTrue(resp.get('success'))
+
+        loginres = self.controller.loginUser('user@bright.com', 'pass123')
+        self.assertEqual('test user', loginres.get("payload").get('username'))
+
+        event = self.controller.addEvent(self.event_data)
+        self.assertTrue(event.get('success'))
+
+        event = self.controller.addEvent(self.event_data3)
+        self.assertTrue(event.get('success'))
+
+        self.assertTrue(self.controller.retreiveEventsByName('test event').get('success'))
 

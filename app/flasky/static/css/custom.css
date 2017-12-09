@@ -97,16 +97,10 @@ main {
 .rsvp-div{
     margin-left: 50px;
 }
-#event-item{
-    height: 200px;
-}
 .fixed-action-btn{
     margin-right: 48px;
     margin-bottom: 48px;
 }
-li{
-    margin-bottom: 75px;
-}
 body{
     background-color: #eceff1;
-}     
+}
