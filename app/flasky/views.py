@@ -144,7 +144,7 @@ def rsvps(creator, event):
                              data={'creator':creator, 'clientEmail':clientmail}).json()
 
         if resp.get('success'):
-            myrsvp = ','.join(resp.get('payload'))
+            myrsvp = ','.join(str(resp.get('payload')))
             flash("Rsvp sent for event "+event, 'error')
             return redirect(url_for('flasky.home'))
         flash(resp.get('message'), 'error')
@@ -222,4 +222,18 @@ def deleteevent(eventname):
         flash(resp.get('payload'), 'error')
         return redirect(url_for('flasky.dashboard'))
     flash(resp.get('message'), 'error')
-    return redirect(url_for('flasky.dashboard'))
+    return redirect(url_for('flasky.dashboard', methods='POST'))
+@flasky.route('/managersvps/<action>/<event>/<clientEmail>', methods=['POST'])
+def managersvps(action, event, clientEmail):
+    """
+    Manages rsvp of events
+    """
+    if request.method == 'POST':    
+        resp = requests.put("http://127.0.0.1:5000/api/v1/manageRsvp",
+                                data={'eventId':event, 'action':action, 'clientEmail':clientEmail}).json()
+        print(">>Manage", resp)
+        if resp.get('success'):
+            flash("Successfully done", 'error')
+            return redirect(url_for('flasky.dashboard'))
+        flash('Could not process that request', 'error')
+        return redirect(url_for('flasky.dashboard'))

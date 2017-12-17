@@ -70,7 +70,6 @@ class Controller(object):
         gets single event
         """
         resp = self.events.getEvent(user_id, event_id)
-        print(resp)
         if resp.get("success"):
             return {'success':True, "payload":resp.get("message")}
         return {'success':False, "message":resp.get("message")}
@@ -128,4 +127,13 @@ class Controller(object):
         if resp.get('success'):
             return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
-                      
+    def acceptRsvp(self, userId, eventId, clientEmail):
+        resp = self.events.confirmRsvp(userId, eventId, clientEmail)
+        if resp.get('success'):
+            return {'success':True, 'payload':resp.get('message')}
+        return {'success':False, 'message':resp.get('message')}
+    def rejectRsvp(self, userId, eventId, clientEmail):
+        resp = self.events.rejectRsvp(userId, eventId, clientEmail)
+        if resp.get('success'):
+            return {'success':True, 'payload':resp.get('message')}
+        return {'success':False, 'message':resp.get('message')}              

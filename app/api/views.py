@@ -5,8 +5,8 @@ from functools import wraps
 from flask_restful import  Resource
 
 from .Controller import Controller
-from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams, LogoutParams
-
+from .utils.EndPointParams import RegisterParams, LoginParams, EventParams
+from .utils.EndPointParams import ResetParams, RsvpParams, LogoutParams, ManageRsvpParams
 
 import re
 CONTROLLER = Controller()
@@ -72,7 +72,6 @@ class Authentication(LoginParams, Resource):
         """
         args = self.param.parse_args()
         resp = CONTROLLER.loginUser(args['email'], args['password'])
-        print(">>loggin in", resp.get('payload').get('id'))
         if resp.get('success'):
             mysession['user'] = resp.get('payload').get('id')
             mysession['signed_in'] = True
@@ -222,3 +221,23 @@ class Rsvp(RsvpParams, Resource):
         if resp.get('success'):
             return resp, 201
         return resp, 409
+class ManageRsvp(ManageRsvpParams, Resource):
+    """
+    Class manages Rsvp for a user
+    """
+    @auth_required
+    def put(self):
+        args = self.param.parse_args()
+        eventId = args['eventId']
+        action = args['action']
+        clientEmail = args['clientEmail']
+        if action == 'cancel':
+            resp = CONTROLLER.rejectRsvp(mysession['user'], int(eventId), clientEmail)
+            if resp.get('success'):
+                return resp, 201
+            return resp, 409
+        resp = CONTROLLER.acceptRsvp(mysession['user'], int(eventId), clientEmail)
+        if resp.get('success'):
+            return resp, 201
+        return resp, 409
+        

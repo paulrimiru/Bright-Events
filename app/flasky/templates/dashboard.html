@@ -77,18 +77,32 @@
                                 {% for rsvp in event.get('rsvp')%}
                                 <li  data-aos="zoom-in" data-aos-easing="ease-in-sine" data-aos-duration="800">
                                     <div class="col s12">
-                                        <div class="card-panel grey lighten-5 z-depth-1">
-                                            <div class="row valign-wrapper">
+                                        <div class="card sticky-action grey lighten-5 z-depth-1">
             
-                                            <div class="col s12">
-                                                <div class="row">
-                                                    <h4 class="card-title purple-text text-darken-4">{{ rsvp }}</h4>
-                                                </div>
-                                                <div class="row">
-                                                    <h5 class="black-text">Coming</h5>
-                                                </div>
+                                            <div class="card-content">
+                                                
+                                                <h4 class="card-title purple-text text-darken-4">{{ rsvp.get('client') }}</h4>
+                                            
+                                                <h5 class="black-text">Coming</h5>
                                             </div>
+                                            <div class="card-action">
+                                                {% if rsvp.get('accepted') %}
+                                                <form action="{{ url_for('flasky.managersvps',action='cancel', event=event.get('id'), clientEmail=rsvp.get('client'))}}" method="POST">
+                                                    <input type="hidden" value="">
+                                                    <button type="submit" class="btn-floating waves-effect waves-light red darken-1 tooltipped modal-trigger" data-tooltip="Cancel user rsvp">
+                                                        <i class="material-icons">cancel</i>
+                                                    </button>
+                                                </form>
+                                                {% else %}
+                                                <form action="{{ url_for('flasky.managersvps',action='accept',event=event.get('id'), clientEmail =rsvp.get('client'))}}" method="POST">
+                                                    <input type="hidden" value="">
+                                                    <button type="submit" class="btn-floating waves-effect waves-light green darken-1 tooltipped modal-trigger" data-tooltip="Accept user rsvp">
+                                                        <i class="material-icons">done</i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
                                             </div>
+                                        
                                         </div>
                                     </div>
                                 </li>

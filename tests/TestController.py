@@ -21,6 +21,7 @@ class TestController(unittest.TestCase):
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
+            'category':'private',
             'creator':1,
             'rsvp':[]
         }
@@ -28,6 +29,7 @@ class TestController(unittest.TestCase):
             'name':'test event',
             'location':'Nairobi',
             'time':'5/6/2016',
+            'category':'public',
             'creator':2,
             'rsvp':[]
         }
@@ -129,7 +131,7 @@ class TestController(unittest.TestCase):
 
         rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
-        self.assertIn('myemail@bright.com', rsvp.get('payload'))
+        self.assertDictEqual({'client': 'myemail@bright.com', 'accepted': False}, rsvp.get('payload')[0])
     def testRetrieveRsvp(self):
         """
         tests rettrieval of rsvp of events
@@ -145,11 +147,10 @@ class TestController(unittest.TestCase):
 
         rsvp = self.controller.addRsvp(1, 11, 'myemail@bright.com')
         self.assertTrue(rsvp.get('success'))
-        self.assertIn('myemail@bright.com', rsvp.get('payload'))
+        self.assertDictEqual({'client': 'myemail@bright.com', 'accepted': False}, rsvp.get('payload')[0])
 
         retrive = self.controller.retriveRsvp(1, 11)
-        print(retrive)
-        self.assertIn('myemail@bright.com', retrive.get('payload'))
+        self.assertListEqual([{'client': 'myemail@bright.com', 'accepted': False}], retrive.get('payload'))
     def testRetrieveEventsByName(self):
         """
         Tests to retrieve all events with specific names
@@ -167,4 +168,11 @@ class TestController(unittest.TestCase):
         self.assertTrue(event.get('success'))
 
         self.assertTrue(self.controller.retreiveEventsByName('test event').get('success'))
-
+    def testAcceptRsvp(self):
+        self.testSaveRsvp()
+        resp = self.controller.acceptRsvp(1, 11, 'myemail@bright.com')
+        self.assertTrue(resp.get('success'))
+    def tstRejectRsvp(self):
+        self.testAcceptRsvp()
+        resp = self.controller.rejectRsvp(1, 11, 'myemail@bright.com')
+        self.assertFalse(resp.get('payload')[0].get('rsvp')[0].get('accepted'))

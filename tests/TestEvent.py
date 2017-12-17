@@ -15,6 +15,7 @@ class TestEvents(unittest.TestCase):
             'location':'Nairobi',
             'time':'5/6/2016',
             'creator':1,
+            'category':'private',
             'rsvp':[]
         }
         self.event_data2 = {
@@ -22,6 +23,7 @@ class TestEvents(unittest.TestCase):
             'location':'Nairobi',
             'time':'5/6/2016',
             'creator':2,
+            'category':'public',
             'rsvp':[]
         }
 
@@ -77,9 +79,8 @@ class TestEvents(unittest.TestCase):
         self.assertTrue(self.event.create_event(self.event_data).get('success'))
         self.assertEqual(1, len(self.event.getEvents().get('message')))
         resp = self.event.rsvpEvent(1, 11, 'myemail@email.com')
-        print(resp)
         self.assertTrue(resp.get('success'))
-        self.assertIn('myemail@email.com', resp.get('message'))
+        self.assertEqual(1, len(resp.get('message')))
     def testDeleteEvent(self):
         """
         tests deletion of events
@@ -118,3 +119,18 @@ class TestEvents(unittest.TestCase):
         self.assertEqual(2, len(self.event.getEvents().get('message')))
 
         self.assertEqual(2, len(self.event.getEventByName("test event").get('message')))
+    def testAcceptRsvp(self):
+        self.assertTrue(self.event.create_event(self.event_data).get('success'))
+        self.assertEqual(1, len(self.event.getEvents().get('message')))
+        resp = self.event.rsvpEvent(1, 11, 'myemail@email.com')
+        self.assertTrue(resp.get('success'))
+        self.assertEqual(1, len(resp.get('message')))
+        self.assertTrue(self.event.confirmRsvp(1, 11,'myemail@email.com').get('success'))
+    def testRejectEventRsvp(self):
+        self.assertTrue(self.event.create_event(self.event_data2).get('success'))
+        self.assertEqual(1, len(self.event.getEvents().get('message')))
+        resp = self.event.rsvpEvent(2, 21, 'myemail@email.com')
+        self.assertTrue(resp.get('success'))
+        self.assertEqual(1, len(resp.get('message')))
+        self.assertTrue(self.event.rejectRsvp(2, 21,'myemail@email.com').get('success'))
+    

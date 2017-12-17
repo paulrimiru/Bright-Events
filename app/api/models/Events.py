@@ -92,11 +92,17 @@ class Events(object):
         """
         if user_id in self.events_dict:
             if int(event_id) in self.events_dict.get(user_id):
-                rsvp = self.events_dict.get(user_id).get(int(event_id)).get('rsvp')
-                if clientEmail not in rsvp:
-                    rsvp.append(clientEmail)
-                    return {'success':True, 'message':rsvp}
-                return {'success':False, 'message':"You already Reserved this event"}
+                myevent = self.events_dict.get(user_id).get(int(event_id));
+                rsvpList = myevent.get('rsvp')
+                for rsvp in rsvpList:
+                    if clientEmail == rsvp.get('client'):
+                        return {'success':False, 'message':"You already Reserved this event"}
+                if myevent.get('category') == 'private':
+                    rsvpList.append({'client':clientEmail, 'accepted':False})
+                    return {'success':True, 'message':rsvpList}
+                rsvpList.append({'client':clientEmail, 'accepted':True}) 
+                return {'success':True, 'message':rsvpList}
+                
             return {'success':False, 'message':"cannot find the event"}
         return {'success':False, 'message':"user does not exist"}
     def getRsvpForEvent(self, user_id, eventName):
@@ -127,4 +133,25 @@ class Events(object):
                 if event_name == user_events.get('name'):
                     return event_id
         return None
-
+    def confirmRsvp(self, creatorId,eventId, clientEmail):
+        rsvpResp = self.getRsvpForEvent(creatorId, eventId)
+        if rsvpResp.get('success'):
+            for rsvp in rsvpResp.get('message'):
+                if rsvp.get('client') == clientEmail:
+                    rsvp['accepted'] = True
+                    return {'success':True, 'message':rsvp}
+                return {'success':False, 'message':'No Rsvp with that email found'}
+        return rsvpResp
+    
+    def rejectRsvp(self, creatorId, eventId, clientEmail):
+        rsvpResp = self.getRsvpForEvent(creatorId, eventId)
+        if rsvpResp.get('success'):
+            for rsvp in rsvpResp.get('message'):
+                if rsvp.get('client') == clientEmail:
+                    print(rsvp)
+                    if rsvp.get('accepted'):
+                        rsvp['accepted'] = False
+                        return {'success':True, 'message':rsvp}
+                    return {'success':False, 'message':"The user rsvp has already been rejected"}
+                return {'success':False, 'message':'No Rsvp with that email found'}
+        return rsvpResp
