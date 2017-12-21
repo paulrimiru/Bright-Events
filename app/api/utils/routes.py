@@ -1,6 +1,7 @@
 """
 Module contains all the routes required by the API
 """
+
 from app.api import API as restful
 from app.api import views as funcs
 
