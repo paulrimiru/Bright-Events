@@ -43,13 +43,13 @@ class TestController(unittest.TestCase):
         """
         tests user registration
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
     def test_login_user(self):
         """
         tests user login
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -65,7 +65,7 @@ class TestController(unittest.TestCase):
         """
         tests ability for user to add events
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -88,7 +88,7 @@ class TestController(unittest.TestCase):
         """
         tests ability for an event to be updated
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -109,7 +109,7 @@ class TestController(unittest.TestCase):
         """
         tests rettrieval of all events
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -118,14 +118,14 @@ class TestController(unittest.TestCase):
         event = self.controller.add_event(self.event_data)
         self.assertTrue(event.get('success'))
 
-        eventsresp = self.controller.retrieve_all_event()
+        eventsresp = self.controller.retrieve_all_events()
         self.assertTrue(resp.get('success'))
         self.assertListEqual([self.event_data], eventsresp.get('payload'))
     def test_retrieve_events_for_current_user(self):
         """
         tests retrieval of current users
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -141,7 +141,7 @@ class TestController(unittest.TestCase):
         """
         tests addition of rsvp by users
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -157,7 +157,7 @@ class TestController(unittest.TestCase):
         """
         tests rettrieval of rsvp of events
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -176,7 +176,7 @@ class TestController(unittest.TestCase):
         """
         Tests to retrieve all events with specific names
         """
-        resp = self.controller.regiser_user(self.userData)
+        resp = self.controller.register_user(self.userData)
         self.assertTrue(resp.get('success'))
 
         loginres = self.controller.login_user('user@bright.com', 'pass123')
@@ -188,7 +188,7 @@ class TestController(unittest.TestCase):
         event = self.controller.add_event(self.event_data3)
         self.assertTrue(event.get('success'))
 
-        self.assertTrue(self.controller.retrive_events_by_name('test event').get('success'))
+        self.assertTrue(self.controller.retrieve_events_by_name('test event').get('success'))
     def test_accept_rsvp(self):
         self.test_save_rsvp()
         resp = self.controller.accept_rsvp(1, 11, 'myemail@bright.com')

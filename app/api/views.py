@@ -84,10 +84,11 @@ class Register(RegisterParams, Resource):
             "email":email,
             "password":password
         }
-        resp = CONTROLLER.regiser_user(user_data)
+        resp = CONTROLLER.register_user(user_data)
         if resp.get('success'):
             return resp, 201
         return resp, 409
+
 class Authentication(LoginParams, Resource):
     """
     Class contains logic that authenticates the users
@@ -199,7 +200,7 @@ class Events(EventParams, Resource):
             409:
                 description: Events couldnot be retrieved
         """
-        resp = CONTROLLER.retrieve_all_event()
+        resp = CONTROLLER.retrieve_all_events()
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -273,7 +274,7 @@ class Events(EventParams, Resource):
                 description: Event could not be retrieved
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.retrive_events_by_name(args["name"])
+        resp = CONTROLLER.retrieve_events_by_name(args["name"])
         if resp.get('success'):
             return resp.get('message'), 201
         return resp, 409
