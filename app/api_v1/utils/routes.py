@@ -2,8 +2,8 @@
 Module contains all the routes required by the API
 """
 
-from app.api import API as restful
-from app.api import views as funcs
+from app.api_v1 import API as restful
+from app.api_v1 import views as funcs
 
 restful.add_resource(funcs.Index, '/')
 restful.add_resource(funcs.Register, '/auth/register')

@@ -2,7 +2,7 @@
 tests manipulation of the user model
 """
 import unittest
-from app.api.models.users import Users
+from app.api_v1.models.users import Users
 
 class UserTest(unittest.TestCase):
     """

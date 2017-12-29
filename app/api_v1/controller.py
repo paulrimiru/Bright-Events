@@ -1,7 +1,7 @@
 """
 Module contains the controller
 """
-from app.api.models.users import Users
+from .models.users import Users
 from .models.events import Events
 
 

@@ -2,7 +2,7 @@
 Module contains controller tests
 """
 import unittest
-from app.api.controller import Controller
+from app.api_v1.controller import Controller
 
 class TestController(unittest.TestCase):
     """
