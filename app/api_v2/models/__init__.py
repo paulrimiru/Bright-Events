@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-
+from flask_jwt_extended import JWTManager
 import uuid
 
 BCRYPT = Bcrypt()
 DB = SQLAlchemy()
+JWTMANAGER = JWTManager()
 
 class User(DB.Model):
     """
@@ -14,8 +15,9 @@ class User(DB.Model):
     """
     id = DB.Column(DB.Integer(), primary_key=True)
     username = DB.Column(DB.String(255))
-    email = DB.Column(DB.String(255))
-    password = DB.Column(DB.String(255))
+    email = DB.Column(DB.String(255), unique=True)
+    password = DB.Column(DB.Binary(255))
+    events = DB.relationship('Event', backref='user', lazy=True)
 
     def __init__(self, username, email, password):
         self.username = username
@@ -39,8 +41,28 @@ class ResetPassword(DB.Model):
     date = DB.Column(DB.DateTime(), default=expiration_date)
 
     user = DB.relationship(User)
-
     DB.UniqueConstraint('user_id', 'code', name='uni_user_code')
 
     def __init__(self, user):
         self.user = user
+
+class Event(DB.Model):
+    id = DB.Column(DB.Integer(), primary_key=True)
+    name = DB.Column(DB.String(255))
+    location = DB.Column(DB.String(255))
+    host = DB.Column(DB.Integer(), DB.ForeignKey('user.id'), nullable=False)
+    category = DB.Column(DB.Integer(), DB.ForeignKey('category.id'), nullable=False)
+    date = DB.Column(DB.DateTime())
+
+    def __init__(self, name, location, host, category, date):
+        self.name = name
+        self.location = location
+        self.host = host
+        self.category = category
+        self.date = date
+class Category(DB.Model):
+    id = DB.Column(DB.Integer(), primary_key=True)
+    name = DB.Column(DB.String(), nullable=False)
+
+    def __init__(self, name):
+        self.name = name

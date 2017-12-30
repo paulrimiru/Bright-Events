@@ -38,6 +38,7 @@ class EventParams(object):
     param = reqparse.RequestParser()
     param.add_argument('name', type=str, required=False)
     param.add_argument('location', type=str, required=False)
+    param.add_argument('host', type=str, required=False)
     param.add_argument('time', type=str, required=False)
     param.add_argument('category', type=str, required=False)
 class RsvpParams(object):
@@ -55,3 +56,18 @@ class ManageRsvpParams(object):
     param.add_argument('eventId', required=True)
     param.add_argument('action', required=True)
     param.add_argument('clientEmail', required=True)
+
+class CategoryParams(object):
+    """
+    category params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('name', required=True)
+class PasswordResetParams(object):
+    """
+    V2 reset password params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('email', required=False)
+    param.add_argument('code', required=False)
+    param.add_argument('password', required=False)

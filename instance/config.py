@@ -7,6 +7,7 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = 'secret'
+    JWT_SECRET_KEY = 'jwt secret key for encryption purposes'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = False
 class DevelopmentConfig(Config):

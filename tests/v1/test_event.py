@@ -15,7 +15,7 @@ class TestEvents(unittest.TestCase):
             'location':'Nairobi',
             'time':'5/6/2016',
             'creator':1,
-            'category':'private',
+            'category':1,
             'rsvp':[]
         }
         self.event_data2 = {
