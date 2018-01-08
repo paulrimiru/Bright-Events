@@ -47,3 +47,11 @@ class RsvpParams(object):
     param = reqparse.RequestParser()
     param.add_argument('creator', required=False)
     param.add_argument('clientEmail', required=False)
+class ManageRsvpParams(object):
+    """
+    Manage Rsvps params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('eventId', required=True)
+    param.add_argument('action', required=True)
+    param.add_argument('clientEmail', required=True)

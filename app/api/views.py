@@ -4,9 +4,9 @@ This module includes all the logic triggered by endpoints
 from functools import wraps
 from flask_restful import  Resource
 
-from .Controller import Controller
-from .utils.EndPointParams import RegisterParams, LoginParams, EventParams, ResetParams, RsvpParams, LogoutParams
-
+from .controller import Controller
+from .utils.endpointparams import RegisterParams, LoginParams, EventParams
+from .utils.endpointparams import ResetParams, RsvpParams, LogoutParams, ManageRsvpParams
 
 import re
 CONTROLLER = Controller()
@@ -18,96 +18,171 @@ def auth_required(func):
         """checks for if the user is logged in through the session"""
         if 'signed_in' not in mysession or not mysession['signed_in']:
             return {"success":False,
-                    'message': 'Authentication is required to access this resource'}, 401
+                    'message': 'Authentication is required to access this resource'}, 302
         return func(*args, **kargs)
     return auth
-def validateEmail(email):
+def validate_email(email):
     regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
     if regex.match(email):
         return True
     return False
-def validatePassword(password):
+def validate_password(password):
     if len(password) < 6:
         return False
     return True
 class Index(Resource):
     def get(self):
-        return {'success':True, 'message':'welcome to Bright Events API'}
+        """
+        Introduction to the Bright-Events API
+        ---
+        tags:
+            - Introduction
+        responses:
+            200:
+                description: Introduction to the Bright-Events API
+        """
+        return {'success':True, 'message':'welcome to Bright Events API'}, 200
 
 class Register(RegisterParams, Resource):
-    """
-    Class provides logic for registering a user
-    """
+    
     def post(self):
         """
-        listens for a post request then registers user
+        Register users
+        ---
+        tags:
+            - Registration
+        parameters:
+            - in: formData
+              name: username
+              type: string
+              required: true
+            - in: formData
+              name: email
+              type: string
+              required: true
+            - in: formData
+              name: password
+              type: string
+              required: true
+        responses:
+            201:
+                description: A single user item
         """
         args = self.param.parse_args()
         username = args['username']
         email = args['email']
         password = args['password']
 
-        if not validateEmail(email):
-            return {'success':False, 'message':'invalid email'}
-        if not validatePassword(password):
+        if not validate_email(email):
+            return {'success':False, 'message':'invalid email'}, 409
+        if not validate_password(password):
             return {'success':False,
-                    'message':'your password is weak, enter a password with 6 characters'}
+                    'message':'your password is weak, enter a password with 6 characters'}, 409
 
         user_data = {
             "username":username,
             "email":email,
             "password":password
         }
-        resp = CONTROLLER.registerUser(user_data)
+        resp = CONTROLLER.register_user(user_data)
         if resp.get('success'):
             return resp, 201
-        return resp, 401
+        return resp, 409
+
 class Authentication(LoginParams, Resource):
     """
     Class contains logic that authenticates the users
     """
     def post(self):
         """
-        Triggered by a post request and logs in the user
+        Login users
+        ---
+        tags:
+            - Authentication
+        parameters:
+            - in: formData
+              name: email
+              type: string
+              required: true
+            - in: formData
+              name: password
+              type: string
+              required: true
+        responses:
+            201:
+                description: Authenticated user
+            409:
+                description: User credentials are wrong
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.loginUser(args['email'], args['password'])
-        print(">>loggin in", resp.get('payload').get('id'))
+        resp = CONTROLLER.login_user(args['email'], args['password'])
         if resp.get('success'):
             mysession['user'] = resp.get('payload').get('id')
             mysession['signed_in'] = True
             return resp, 201
-        return resp, 401
+        return resp, 409
 class Logout(LogoutParams, Resource):
     """
     class contains logic that logsout user
     """
     def post(self):
         """
-        Triggered by a get request and logs out the user
+        Logout users
+        ---
+        tags:
+            - Authentication
+        parameters:
+            - in: formData
+              name: id
+              type: string
+              required: true
+        responses:
+            201:
+                description: User logged out
+            408:
+                description: Id provided is not logged in
+            409:
+                description: No user logged in at the momment
         """
         args = self.param.parse_args()
         if 'user' in mysession:
             if mysession['user'] == int(args['id']):
                 mysession.pop('user')
                 mysession['signed_in'] = False
-                return {'success':True, 'payload':None}
+                return {'success':True, 'payload':None}, 201
             else:
-                return {'success':False, 'message':'user provided is not in session'}
-        return {'success':False, 'message':'No user is logged i at the momment with your account'}
+                return {'success':False, 'message':'user provided is not in session'}, 408
+        return {'success':False, 'message':'No user is logged i at the momment with your account'}, 409
 class ResetPassword(ResetParams, Resource):
     """
-    Class contains logic to reset users password
+    Class resets users passwords
     """
     def post(self):
         """
-        Triggered by a post request and resets users password
+        Reset users password
+        ---
+        tags:
+            - Authentication
+        parameters:
+            - in: formData
+              name: email
+              type: string
+              required: true
+            - in: formData
+              name: password
+              type: string
+              required: true
+        responses:
+            201:
+                description: Password changed
+            409:
+                description: User credentials are wrong
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.resetPassword(args['email'], args['password'])
+        resp = CONTROLLER.reset_password(args['email'], args['password'])
         if resp.get('success'):
             return resp, 201
-        return resp, 401
+        return resp, 409
 
 class Events(EventParams, Resource):
     """
@@ -115,16 +190,57 @@ class Events(EventParams, Resource):
     """
     def get(self):
         """
-        Triggered by get request and retrieves all events
+        Retreive all events
+        ---
+        tags:
+            - Events
+        responses:
+            201:
+                description: Events retrieved
+            409:
+                description: Events couldnot be retrieved
         """
-        resp = CONTROLLER.retrieveAllEvents()
+        resp = CONTROLLER.retrieve_all_events()
         if resp.get('success'):
             return resp, 201
-        return resp, 401
+        return resp, 409
     @auth_required
     def post(self):
         """
-        Triggered by a post request and adds the event
+        Create event
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: formData
+              name: name
+              type: string
+              required: true
+            - in: formData
+              name: location
+              type: string
+              required: true
+            - in: formData
+              name: category
+              type: string
+              required: true
+            - in: formData
+              name: time
+              type: string
+              required: true
+            - in: formData
+              name: creator
+              type: string
+              required: true
+            - in: formData
+              name: rsvp
+              type: list
+              required: false
+        responses:
+            201:
+                description: Event created successfully
+            409:
+                description: Event not created
         """
         args = self.param.parse_args()
         event_data = {
@@ -135,17 +251,30 @@ class Events(EventParams, Resource):
             'creator':mysession['user'],
             'rsvp':[]
         }
-        resp = CONTROLLER.addEvent(event_data)
+        resp = CONTROLLER.add_event(event_data)
         if resp.get('success'):
             return resp, 201
-        return resp, 401
+        return resp, 409
     @auth_required
     def put(self):
         """
-        Triggered by a put request and retrieves a single event
+        Retrieve specific event by name
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: formData
+              name: name
+              type: string
+              required: true
+        responses:
+            201:
+                description: Event retrieved
+            409:
+                description: Event could not be retrieved
         """
         args = self.param.parse_args()
-        resp = CONTROLLER.retreiveEventsByName(args["name"])
+        resp = CONTROLLER.retrieve_events_by_name(args["name"])
         if resp.get('success'):
             return resp.get('message'), 201
         return resp, 409
@@ -156,33 +285,96 @@ class ManageEvent(EventParams, Resource):
     @auth_required
     def get(self, eventId):
         """
-        gets events for a specific user or specific event if event id is provided
+        Retrieve specific Event
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: path
+              name: eventId
+              type: int
+              required: true
+        responses:
+            201:
+                description: Event retrieved successfully
+            409:
+                description: Event could not be found
         """
         if eventId:
-            resp = CONTROLLER.retriveSingelEvent(int(mysession['user']), int(eventId))
+            resp = CONTROLLER.retrieve_single_event(int(mysession['user']), int(eventId))
             if resp.get('success'):
                 return resp, 201
-        resp = CONTROLLER.retrieveEvent(int(mysession['user']))
+        resp = CONTROLLER.retrieve_event(int(mysession['user']))
         if resp.get('success'):
             print(resp)
             return resp, 201
-        return resp, 401
+        return resp, 409
 
     @auth_required
     def delete(self, eventId):
         """
-        triggered by a delete request and deletes event specified
+        Delete specific Event
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: path
+              name: eventId
+              type: int
+              required: true
+        responses:
+            201:
+                description: Event deleted successfully
+            409:
+                description: Event could not be deleted
         """
-        resp = CONTROLLER.deleteSingleEvent(mysession['user'], int(eventId))
+        resp = CONTROLLER.delete_single_event(mysession['user'], int(eventId))
         if resp.get('success'):
             return resp, 201
         return resp, 409
     def put(self, eventId):
         """
-        triggered by a put request and edits a specified event
+        Edit specific Event
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: path
+              name: eventId
+              type: int
+              required: true
+            - in: formData
+              name: name
+              type: string
+              required: true
+            - in: formData
+              name: location
+              type: string
+              required: true
+            - in: formData
+              name: category
+              type: string
+              required: true
+            - in: formData
+              name: time
+              type: string
+              required: true
+            - in: formData
+              name: creator
+              type: string
+              required: true
+            - in: formData
+              name: rsvp
+              type: list
+              required: false
+        responses:
+            201:
+                description: Specific event edited successfully
+            409:
+                description: Event could not be edited
         """
         args = self.param.parse_args()
-        rsvp = CONTROLLER.retriveSingelEvent(mysession['user'],
+        rsvp = CONTROLLER.retrieve_single_event(mysession['user'],
                                              int(eventId)).get('payload').get('rsvp')
         event_data = {
             'name':args['name'],
@@ -191,7 +383,7 @@ class ManageEvent(EventParams, Resource):
             'creator':mysession['user'],
             'rsvp':rsvp
         }
-        resp = CONTROLLER.editEvent(mysession['user'], int(eventId), event_data)
+        resp = CONTROLLER.edit_event(mysession['user'], int(eventId), event_data)
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -202,23 +394,101 @@ class Rsvp(RsvpParams, Resource):
     """
     def post(self, eventId):
         """
-        Triggered by a post method and adds user to rsvp list
+        Rsvp a particular event
+        ---
+        tags:
+            - Events
+        parameters:
+            - in: path
+              name: eventId
+              type: int
+              required: true
+            - in: formData
+              name: creator
+              type: string
+              required: true
+            - in: formData
+              name: clientEmail
+              type: string
+              required: true
+        responses:
+            201:
+                description: Rsvp added to event
+            409:
+                description: Rsvp not added to event
         """
         args = self.param.parse_args()
         email = args['clientEmail']
         creator = args['creator']
-        if not validateEmail(email):
-            return {'success':False, 'message':'invalid email'}
-        resp = CONTROLLER.addRsvp(int(creator), int(eventId), email)
+        if not validate_email(email):
+            return {'success':False, 'message':'invalid email'}, 409
+        resp = CONTROLLER.add_rsvp(int(creator), int(eventId), email)
         if resp.get('success'):
             return resp, 201
         return resp, 409
     @auth_required
     def get(self, eventId):
         """
-        Triggered ny get and retrieves a single rsvp
+        Retrieve Rsvp for a particular event
+        ---
+        tags:
+            - Rsvp
+        parameters:
+            - in: path
+              name: eventId
+              type: int
+              required: true
+        responses:
+            201:
+                description: Rsvp retrived successfully
+            409:
+                description: Rsvp not added to event
         """
-        resp = CONTROLLER.retriveRsvp(mysession['user'], eventId)
+        resp = CONTROLLER.retrieve_rsvp(mysession['user'], eventId)
         if resp.get('success'):
             return resp, 201
         return resp, 409
+class ManageRsvp(ManageRsvpParams, Resource):
+    """
+    Class manages Rsvp for a user
+    """
+    @auth_required
+    def put(self):
+        """
+        Enables users to reject or accept RSVP
+        ---
+        tags:
+            - Rsvp
+        parameters:
+            - in: formData
+              name: eventId
+              type: string
+              required: true
+            - in: formData
+              name: action
+              type: string
+              required: true
+            - in: formData
+              name: clientEmail
+              type: string
+              required: true
+        responses:
+            201:
+                description: Rsvp accepted or rejected successfully
+            409:
+                description: Rsvp could not be accepted or rejected
+        """
+        args = self.param.parse_args()
+        eventId = args['eventId']
+        action = args['action']
+        clientEmail = args['clientEmail']
+        if action == 'cancel':
+            resp = CONTROLLER.reject_rsvp(mysession['user'], int(eventId), clientEmail)
+            if resp.get('success'):
+                return resp, 201
+            return resp, 409
+        resp = CONTROLLER.accept_rsvp(mysession['user'], int(eventId), clientEmail)
+        if resp.get('success'):
+            return resp, 201
+        return resp, 409
+        
