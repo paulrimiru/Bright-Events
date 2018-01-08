@@ -190,7 +190,7 @@ def home():
         return render_template("home.html", json={'events':[], 'id':0})
 
 @flasky.route('/editevent', methods=['POST'])
-def editevent():
+def edit_event():
     """
     Edits events
     """
@@ -213,7 +213,7 @@ def editevent():
     flash(resp.get('message'), 'error')
     return redirect(url_for('flasky.dashboard'))
 @flasky.route('/deleteevent/<eventname>')
-def deleteevent(eventname):
+def delete_event(eventname):
     """
     Deletes events
     """
@@ -224,7 +224,7 @@ def deleteevent(eventname):
     flash(resp.get('message'), 'error')
     return redirect(url_for('flasky.dashboard', methods='POST'))
 @flasky.route('/managersvps/<action>/<event>/<clientEmail>', methods=['POST'])
-def managersvps(action, event, clientEmail):
+def manage_rsvps(action, event, clientEmail):
     """
     Manages rsvp of events
     """
