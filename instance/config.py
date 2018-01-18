@@ -8,6 +8,8 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET = 'secret'
     JWT_SECRET_KEY = 'jwt secret key for encryption purposes'
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = False
 class DevelopmentConfig(Config):

@@ -47,7 +47,8 @@ class RsvpParams(object):
     """
     param = reqparse.RequestParser()
     param.add_argument('creator', required=False)
-    param.add_argument('clientEmail', required=False)
+    param.add_argument('client_email', type=str, required=False)
+    param.add_argument('accept_status', required=False )
 class ManageRsvpParams(object):
     """
     Manage Rsvps params
@@ -55,14 +56,7 @@ class ManageRsvpParams(object):
     param = reqparse.RequestParser()
     param.add_argument('eventId', required=True)
     param.add_argument('action', required=True)
-    param.add_argument('clientEmail', required=True)
-
-class CategoryParams(object):
-    """
-    category params
-    """
-    param = reqparse.RequestParser()
-    param.add_argument('name', required=True)
+    param.add_argument('client_email', required=True)
 class PasswordResetParams(object):
     """
     V2 reset password params

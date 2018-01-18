@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+from marshmallow import fields, Schema
 import uuid
 
 BCRYPT = Bcrypt()
 DB = SQLAlchemy()
 JWTMANAGER = JWTManager()
 
-class User(DB.Model):
+class Users(DB.Model):
     """
     User model
     """
@@ -17,6 +18,8 @@ class User(DB.Model):
     username = DB.Column(DB.String(255))
     email = DB.Column(DB.String(255), unique=True)
     password = DB.Column(DB.Binary(255))
+    date_created = DB.Column(DB.DateTime(), default=datetime.now())
+    date_modified = DB.Column(DB.DateTime(), default=datetime.now())
     events = DB.relationship('Event', backref='user', lazy=True)
 
     def __init__(self, username, email, password):
@@ -36,11 +39,11 @@ def expiration_date():
 class ResetPassword(DB.Model):
     """model for the password reset table"""
     id = DB.Column(DB.Integer(), primary_key=True)
-    user_id = DB.Column(DB.Integer(), DB.ForeignKey('user.id'))
+    user_id = DB.Column(DB.Integer(), DB.ForeignKey('users.id'))
     code = DB.Column(DB.String(255), unique=True, default=generate_uniquecode)
     date = DB.Column(DB.DateTime(), default=expiration_date)
 
-    user = DB.relationship(User)
+    user = DB.relationship(Users)
     DB.UniqueConstraint('user_id', 'code', name='uni_user_code')
 
     def __init__(self, user):
@@ -50,19 +53,71 @@ class Event(DB.Model):
     id = DB.Column(DB.Integer(), primary_key=True)
     name = DB.Column(DB.String(255))
     location = DB.Column(DB.String(255))
-    host = DB.Column(DB.Integer(), DB.ForeignKey('user.id'), nullable=False)
-    category = DB.Column(DB.Integer(), DB.ForeignKey('category.id'), nullable=False)
+    host = DB.Column(DB.Integer(), DB.ForeignKey('users.id'), nullable=False)
+    category = DB.Column(DB.String(), nullable=False)
     date = DB.Column(DB.DateTime())
+    private = DB.Column(DB.Boolean())
+    rsvps = DB.relationship('Rsvp', backref='event', lazy=True)
+    date_created = DB.Column(DB.DateTime(), default=datetime.now())
+    date_modified = DB.Column(DB.DateTime(), default=datetime.now())
 
-    def __init__(self, name, location, host, category, date):
+
+    def __init__(self, name, location, host, category, date, private=False):
         self.name = name
         self.location = location
         self.host = host
         self.category = category
         self.date = date
-class Category(DB.Model):
-    id = DB.Column(DB.Integer(), primary_key=True)
-    name = DB.Column(DB.String(), nullable=False)
+        self.private = private
+class EventSchema(Schema):
+    id = fields.Int(dump_only = True)
+    name = fields.Str()
+    location = fields.Str()
+    host = fields.Str()
+    date = fields.Date(dt_format='iso8601')
+    category = fields.Str()
+    is_private = fields.Bool()
 
-    def __init__(self, name):
-        self.name = name
+event_schema = EventSchema()
+events_schema = EventSchema(many=True)
+
+
+class Rsvp(DB.Model):
+    id = DB.Column(DB.Integer(), primary_key=True)
+    event_id = DB.Column(DB.Integer(), DB.ForeignKey('event.id'), nullable=False)
+    email = DB.Column(DB.String(255))
+    accepted = DB.Column(DB.Boolean(), default=True)
+    date_created = DB.Column(DB.DateTime(), default=datetime.now())
+    date_modified = DB.Column(DB.DateTime(), default=datetime.now())
+
+    def __init__(self,event_id, email, accepted=True):
+        self.event_id = event_id
+        self.email = email
+        self.accepted = accepted
+class RsvpSchema(Schema):
+    id = fields.Int(dump_only=True)
+    event_id = fields.Int(as_string=True)
+    email = fields.Str()
+    accepted = fields.Bool()
+
+    
+rsvps_schema = RsvpSchema(many=True)
+rsvp_schema = RsvpSchema()
+
+class TokenBlackList(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    token = DB.Column(DB.String(), nullable=False)
+    user_id = DB.Column(DB.Integer(), nullable=False)
+    expiry_date = DB.Column(DB.DateTime(), nullable=False)
+    def __init__(self, token, user_id, expiry_date):
+        self.token = token
+        self.user_id = user_id
+        self.expiry_date = expiry_date
+class TokenBlacklistSchema(Schema):
+    id = fields.Int(dump_only=True)
+    token = fields.Str()
+    user_id = fields.Str()
+    expiration_date = fields.Date(dt_format='iso8601')
+
+token_schema = TokenBlacklistSchema()
+tokens_schema = TokenBlacklistSchema(many = True)

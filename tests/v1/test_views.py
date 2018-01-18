@@ -76,19 +76,19 @@ class TestViews(unittest.TestCase):
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.post("/api/v1/event/10/rsvp", data={'creator':'1','clientEmail':'myemail@gmail.com'})
+        resp = self.app.post("/api/v1/event/10/rsvp", data={'creator':'1','client_email':'myemail@gmail.com'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.get("/api/v1/event/10/rsvp", data={'clientEmail':'1'})
+        resp = self.app.get("/api/v1/event/10/rsvp", data={'client_email':'1'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'accept', 'clientEmail':'myemail@gmail.com'})
+        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'accept', 'client_email':'myemail@gmail.com'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'reject', 'clientEmail':'myemail@gmail.com'})
+        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'reject', 'client_email':'myemail@gmail.com'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 

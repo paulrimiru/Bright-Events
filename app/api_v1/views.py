@@ -408,7 +408,7 @@ class Rsvp(RsvpParams, Resource):
               type: string
               required: true
             - in: formData
-              name: clientEmail
+              name: client_email
               type: string
               required: true
         responses:
@@ -418,7 +418,7 @@ class Rsvp(RsvpParams, Resource):
                 description: Rsvp not added to event
         """
         args = self.param.parse_args()
-        email = args['clientEmail']
+        email = args['client_email']
         creator = args['creator']
         if not validate_email(email):
             return {'success':False, 'message':'invalid email'}, 409
@@ -469,7 +469,7 @@ class ManageRsvp(ManageRsvpParams, Resource):
               type: string
               required: true
             - in: formData
-              name: clientEmail
+              name: client_email
               type: string
               required: true
         responses:
@@ -481,13 +481,13 @@ class ManageRsvp(ManageRsvpParams, Resource):
         args = self.param.parse_args()
         eventId = args['eventId']
         action = args['action']
-        clientEmail = args['clientEmail']
+        client_email = args['client_email']
         if action == 'cancel':
-            resp = CONTROLLER.reject_rsvp(mysession['user'], int(eventId), clientEmail)
+            resp = CONTROLLER.reject_rsvp(mysession['user'], int(eventId), client_email)
             if resp.get('success'):
                 return resp, 201
             return resp, 409
-        resp = CONTROLLER.accept_rsvp(mysession['user'], int(eventId), clientEmail)
+        resp = CONTROLLER.accept_rsvp(mysession['user'], int(eventId), client_email)
         if resp.get('success'):
             return resp, 201
         return resp, 409

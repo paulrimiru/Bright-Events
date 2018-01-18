@@ -64,3 +64,7 @@ To run the tests
 # Heroku
 
 [Bright Events](https://paul-bright-events.herokuapp.com/flasky)
+
+# API Documentation
+
+[Bright Event Documentation](https://paul-bright-events.herokuapp.com/apidocs)

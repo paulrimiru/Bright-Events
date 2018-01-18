@@ -32,8 +32,18 @@ class UserTest(ApiTestCase):
 
         response = self.app.post('/api/v2/auth/login', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
+        assert response.status_code == 200
+    def test_user_logout(self):
+        response = self.app.post('/api/v2/auth/register', data=self.user_data)
         assert response.status_code == 201
 
+        response = self.app.post('/api/v2/auth/login', data=self.user_data)
+        data = json.loads(response.data.decode('utf-8'))
+        assert response.status_code == 200
+
+        token = data.get('payload').get('token')
+        response = self.app.post('api/v2/auth/logout', data=self.user_data, headers={'Authorization':' Bearer '+token})
+        assert response.status_code == 200
     def test_password_reset(self):
         """test if users can successfully reset their passwords"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
