@@ -45,7 +45,7 @@ def login_user(user_details):
             user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
             if user and BCRYPT.check_password_hash(user.password, user_details['password']):
                 return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email})}}, 200
-            return {'success': True, 'message':'Invalid credentials'}, 401
+            return {'success': False, 'message':'Invalid credentials'}, 401
         return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
     return {'success': False, 'message':'please provide a valid email'}, 409 
 def identity(payload):

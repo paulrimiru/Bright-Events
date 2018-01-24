@@ -21,10 +21,15 @@ class ProductionConfig(Config):
     """Configurations for Production."""
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://mike:10131994@localhost/bright_events')
-
+class TesingConfig(Config):
+    """Configuration for test"""
+    DEBUG = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://mike:10131994@localhost/bright_events')
 app_config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'test': TesingConfig,
     'configobj':Config,
     'SECRET_KEY':'secret_key'
 }

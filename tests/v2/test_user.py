@@ -15,44 +15,49 @@ class UserTest(ApiTestCase):
         """Test user registration"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
-        assert response.status_code == 201
+        self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
         
     def test_duplicate_registration(self):
         """Test if duplicate emails registration is not successful"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
-        assert response.status_code == 201
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
 
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
-        assert response.status_code == 409
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertDictEqual({"success": False, "message": "email already in exists in the system"}, data)
 
     def test_user_login(self):
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
-        assert response.status_code == 201
+        self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
 
         response = self.app.post('/api/v2/auth/login', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
-        assert response.status_code == 200
+        self.assertTrue(data.get('success'))
     def test_user_logout(self):
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
-        assert response.status_code == 201
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
 
         response = self.app.post('/api/v2/auth/login', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
-        assert response.status_code == 200
+        self.assertTrue(data.get('success'))
 
         token = data.get('payload').get('token')
         response = self.app.post('api/v2/auth/logout', data=self.user_data, headers={'Authorization':' Bearer '+token})
-        assert response.status_code == 200
+        self.assertTrue(data.get('success'))
     def test_password_reset(self):
         """test if users can successfully reset their passwords"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
-        assert response.status_code == 201
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
 
         response = self.app.post('/api/v2/auth/reset-password', data={
             'email': 'test@email.com'
         })
-        assert response.status_code == 201
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
 
         data = json.loads(response.data.decode('utf-8'))
 
@@ -61,16 +66,18 @@ class UserTest(ApiTestCase):
             'code': "bad code",
             'password': 'abc123'
         })
-
-        assert response.status_code == 401
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertFalse(data.get('success'))
         response = self.app.put('/api/v2/auth/reset-password', data={
             'code': pw_reset_code,
             'password': 'abc123'
         })
-        assert response.status_code == 200
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
 
         response = self.app.post('/api/v2/auth/login', data={
             'email': 'test@email.com',
             'password': 'abc123'
         })
-        assert response.status_code == 200
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))

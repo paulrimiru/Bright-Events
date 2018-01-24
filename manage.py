@@ -6,7 +6,7 @@ from app import APP
 from app.api_v2.models import DB
 from instance.config import app_config
 
-APP.config.from_object(app_config['development'])
+APP.config.from_object(app_config['production'])
 
 migrate = Migrate(APP, DB)
 manager = Manager(APP)
