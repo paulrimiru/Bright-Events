@@ -28,6 +28,7 @@ class UserTest(ApiTestCase):
         self.assertDictEqual({"success": False, "message": "email already in exists in the system"}, data)
 
     def test_user_login(self):
+        """Test user login"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
         self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
@@ -36,6 +37,7 @@ class UserTest(ApiTestCase):
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
     def test_user_logout(self):
+        """Test user logout"""
         response = self.app.post('/api/v2/auth/register', data=self.user_data)
         data = json.loads(response.data.decode('utf-8'))
         self.assertDictEqual({"id":1, "username":"test user", "email":"test@email.com"}, data)
