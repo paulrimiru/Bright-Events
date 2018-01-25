@@ -8,8 +8,8 @@ from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
 from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
                               JWTMANAGER, event_schema
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, \
-                                get_jwt_identity, get_raw_jwt, decode_token
+from flask_jwt_extended import jwt_required, create_access_token, \
+                                get_raw_jwt
 
 from sqlalchemy.exc import IntegrityError, InternalError
 
@@ -31,7 +31,6 @@ def register_user(user_details):
         if validate_password(user_details['password']):
             user = Users(user_details['username'], user_details['email'], user_details['password'])
             DB.session.add(user)
-
             try:
                 DB.session.commit()
             except IntegrityError:
@@ -427,13 +426,14 @@ class FilterEvents(FilterParam, Resource):
         args = self.param.parse_args()
         myresult = None
         events = None
-        if args["location"] and args["category"]:
-            events = DB.session.query(Event).filter(Event.location == args["location"]).filter(Event.category == args["category"])
-            myresult = events_schema.dump(events)
-            if bool(myresult.data):
-                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events in this location in that category'}, 401
-        elif args['location']:
+        print(">>>>>>", args)
+        if args['location']:
+            if args['category']:
+                events = DB.session.query(Event).filter(Event.location == args["location"]).filter(Event.category == args["category"])
+                myresult = events_schema.dump(events)
+                if bool(myresult.data):
+                    return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+                return {'success':False, 'message':'sorry no events in this location in that category'}, 401
             events = DB.session.query(Event).filter(Event.location == args["location"])
             myresult = events_schema.dump(events)
             if bool(myresult.data):
