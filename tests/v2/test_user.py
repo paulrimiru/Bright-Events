@@ -1,8 +1,6 @@
-from app import DB
-from tests.v2.test_base import ApiTestCase
-
+"""Module for user tests"""
 import json
-
+from tests.v2.test_base import ApiTestCase
 class UserTest(ApiTestCase):
     """Class for user tests"""
     user_data = {

@@ -213,7 +213,7 @@ class TestEvents(ApiTestCase):
 
         event_id = data.get('payload').get('id')
 
-        response = self.app.get('/api/v2/events', data={'location':'Nairobi'})
+        response = self.app.get('/api/v2/events/filter', data={'location':'Nairobi'}, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         for event in data.get('payload').get('event_list'):
             self.assertEqual('Nairobi', event.get('location'))
@@ -222,7 +222,7 @@ class TestEvents(ApiTestCase):
         data = self.create_event()
         event_id = data.get('payload').get('id')
 
-        response = self.app.get('/api/v2/events', data={'category':'1'})
+        response = self.app.get('/api/v2/events/filter', data={'category':'1'}, headers={'Authorization':' Bearer '+self.token})
 
         data = json.loads(response.data.decode('utf-8'))
         for event in data.get('payload').get('event_list'):
@@ -233,9 +233,10 @@ class TestEvents(ApiTestCase):
 
         event_id = data.get('payload').get('id')
 
-        response = self.app.get('/api/v2/events', data={'category':'1', 'location':'Nairobi'})
+        response = self.app.get('/api/v2/events/filter', data={'category':'1', 'location':'Nairobi'}, headers={'Authorization':' Bearer '+self.token})
 
         data = json.loads(response.data.decode('utf-8'))
         for event in data.get('payload').get('event_list'):
+            self.assertEqual(1, len(data.get('payload').get('event_list')))
             self.assertEqual('1', event.get('category'))
             self.assertEqual('Nairobi', event.get('location'))

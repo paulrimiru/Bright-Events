@@ -3,7 +3,8 @@ from flask_restful import Resource
 
 from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
                                             EventParams, \
-                                            PasswordResetParams, RsvpParams 
+                                            PasswordResetParams, RsvpParams, \
+                                            FilterParam 
 from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
                               JWTMANAGER, event_schema
@@ -65,7 +66,7 @@ class RegisterUser(RegisterParams, Resource):
         Register users
         ---
         tags:
-            - Registration
+            - Registration V2
         parameters:
             - in: formData
               name: username
@@ -93,7 +94,7 @@ class LoginUser(LoginParams, Resource):
         Login users
         ---
         tags:
-            - Authentication
+            - Authentication V2
         parameters:
             - in: formData
               name: email
@@ -118,7 +119,7 @@ class LogoutUser(Resource):
         Logout users
         ---
         tags:
-            - Authentication
+            - Authentication V2
         parameters:
             - in: formData
               name: id
@@ -147,7 +148,7 @@ class PasswordReset(PasswordResetParams, Resource):
         Reset users password
         ---
         tags:
-            - Authentication
+            - Authentication V2
         parameters:
             - in: formData
               name: email
@@ -173,7 +174,7 @@ class PasswordReset(PasswordResetParams, Resource):
         Reset password using confimation code sent
         ---
         tags:
-            - Authentication
+            - Authentication V2
         parameters:
             - in: formData
               name: code
@@ -208,7 +209,7 @@ class Events(EventParams, Resource):
         Create event
         ---
         tags:
-            - Events
+            - Events V2
         parameters:
             - in: header
               name: Authorization
@@ -261,18 +262,7 @@ class Events(EventParams, Resource):
         Retreive all events
         ---
         tags:
-            - Events
-        parameters:
-            - in: formData
-              name: location
-              type: string
-              description: filter events by location
-              required: false
-            - in: formData
-              name: category
-              type: string
-              description: filter events by category
-              required: false
+            - Events V2
         responses:
             201:
                 description: Events retrieved
@@ -283,27 +273,12 @@ class Events(EventParams, Resource):
         myresult = None
         events = None
 
-        print(">>>>>", args)
-
-        if args['location']:
-            events = DB.session.query(Event).filter(Event.location == args["location"])
-            myresult = events_schema.dump(events)
-            if bool(myresult.data):
-                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events at the momment'}, 401
-        elif args["category"]:
-            events = DB.session.query(Event).filter(Event.category == args["category"])
-            myresult = events_schema.dump(events)
-            if bool(myresult.data):
-                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events at the momment'}, 401
-        else:
-            events = Event.query.all()
-            myresult = events_schema.dump(events)
-            if bool(myresult.data):
-                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events at the momment'}, 401
-        
+        events = Event.query.all()
+        myresult = events_schema.dump(events)
+        if bool(myresult.data):
+            return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+        return {'success':False, 'message':'sorry no events at the momment'}, 401
+    
 class ManageEvents(EventParams, Resource):
     
     def get(self, event_id):
@@ -311,7 +286,7 @@ class ManageEvents(EventParams, Resource):
         get single event
         ---
         tags:
-            - Events
+            - Events V2
         parameters:
             - in: header
               name: Authorization
@@ -340,7 +315,7 @@ class ManageEvents(EventParams, Resource):
         Edit specific Event
         ---
         tags:
-            - Events
+            - Events V2
         parameters:
             - in: header
               name: Authorization
@@ -390,7 +365,7 @@ class ManageEvents(EventParams, Resource):
         Delete specific Event
         ---
         tags:
-            - Events
+            - Events V2
         parameters:
             - in: header
               name: Authorization
@@ -418,6 +393,59 @@ class ManageEvents(EventParams, Resource):
             DB.session.commit()
             return {'success': True, 'payload':{'id':event_id}}, 200
         return {'success':False, 'message':'event not found'}, 401
+
+class FilterEvents(FilterParam, Resource):
+    @jwt_required
+    def get(self):
+        """
+        Retreive all events
+        ---
+        tags:
+            - Events V2
+        parameters:
+            - in: header
+              name: Authorization
+              description: Authorization token required for protected end points. Format should be 'Bearer token'
+              type: string
+              required: true
+            - in: formData
+              name: location
+              type: string
+              description: filter events by location
+              required: false
+            - in: formData
+              name: category
+              type: string
+              description: filter events by category
+              required: false
+        responses:
+            201:
+                description: Events retrieved
+            401:
+                description: Events could not be retrieved
+        """
+        args = self.param.parse_args()
+        myresult = None
+        events = None
+        if args["location"] and args["category"]:
+            events = DB.session.query(Event).filter(Event.location == args["location"]).filter(Event.category == args["category"])
+            myresult = events_schema.dump(events)
+            if bool(myresult.data):
+                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+            return {'success':False, 'message':'sorry no events in this location in that category'}, 401
+        elif args['location']:
+            events = DB.session.query(Event).filter(Event.location == args["location"])
+            myresult = events_schema.dump(events)
+            if bool(myresult.data):
+                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+            return {'success':False, 'message':'sorry no events in this location'}, 401
+        elif args["category"]:
+            events = DB.session.query(Event).filter(Event.category == args["category"])
+            myresult = events_schema.dump(events)
+            if bool(myresult.data):
+                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+            return {'success':False, 'message':'sorry no events in this category'}, 401
+        return {'success':False, 'message':'please provide a search parameter'}, 400
 class ManageRsvp(RsvpParams, Resource):
     @jwt_required
     def get(self, event_id):
@@ -425,7 +453,7 @@ class ManageRsvp(RsvpParams, Resource):
         Retrieve Rsvp for a particular event
         ---
         tags:
-            - Rsvp
+            - Rsvp V2
         parameters:
             - in: header
               name: Authorization
@@ -453,7 +481,7 @@ class ManageRsvp(RsvpParams, Resource):
         Rsvp a particular event
         ---
         tags:
-            - Events
+            - Events V2
         parameters:
             - in: path
               name: event_id
@@ -490,7 +518,7 @@ class ManageRsvp(RsvpParams, Resource):
         Enables users to reject or accept RSVP
         ---
         tags:
-            - Rsvp
+            - Rsvp V2
         parameters:
             - in: header
               name: Authorization

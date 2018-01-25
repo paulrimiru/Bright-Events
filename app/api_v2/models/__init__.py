@@ -50,6 +50,7 @@ class ResetPassword(DB.Model):
         self.user = user
 
 class Event(DB.Model):
+    """model for user table"""
     id = DB.Column(DB.Integer(), primary_key=True)
     name = DB.Column(DB.String(255))
     location = DB.Column(DB.String(255))
@@ -70,6 +71,7 @@ class Event(DB.Model):
         self.date = date
         self.private = private
 class EventSchema(Schema):
+    """shchema for events"""
     id = fields.Int(dump_only = True)
     name = fields.Str()
     location = fields.Str()
@@ -83,6 +85,7 @@ events_schema = EventSchema(many=True)
 
 
 class Rsvp(DB.Model):
+    """model for rsvp table"""
     id = DB.Column(DB.Integer(), primary_key=True)
     event_id = DB.Column(DB.Integer(), DB.ForeignKey('event.id'), nullable=False)
     email = DB.Column(DB.String(255))
@@ -95,6 +98,7 @@ class Rsvp(DB.Model):
         self.email = email
         self.accepted = accepted
 class RsvpSchema(Schema):
+    """schema for rsvps"""
     id = fields.Int(dump_only=True)
     event_id = fields.Int(as_string=True)
     email = fields.Str()
@@ -105,6 +109,7 @@ rsvps_schema = RsvpSchema(many=True)
 rsvp_schema = RsvpSchema()
 
 class TokenBlackList(DB.Model):
+    """model for token blacklist table"""
     id = DB.Column(DB.Integer, primary_key=True)
     token = DB.Column(DB.String(), nullable=False)
     user_id = DB.Column(DB.Integer(), nullable=False)
@@ -114,6 +119,7 @@ class TokenBlackList(DB.Model):
         self.user_id = user_id
         self.expiry_date = expiry_date
 class TokenBlacklistSchema(Schema):
+    """schem afor token blacklist"""
     id = fields.Int(dump_only=True)
     token = fields.Str()
     user_id = fields.Str()

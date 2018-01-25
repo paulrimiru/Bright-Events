@@ -65,3 +65,11 @@ class PasswordResetParams(object):
     param.add_argument('email', required=False)
     param.add_argument('code', required=False)
     param.add_argument('password', required=False)
+
+class FilterParam(object):
+    """
+    V2 reset filter params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('category', required=False)
+    param.add_argument('location', required=False)
