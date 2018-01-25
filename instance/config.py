@@ -25,7 +25,7 @@ class TesingConfig(Config):
     """Configuration for test"""
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://mike:10131994@localhost/bright_events')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://mike:10131994@localhost/test_db')
 app_config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
