@@ -54,7 +54,7 @@ def login_user(user_details):
             if validate_password(user_details['password']):
                 user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
                 if user and BCRYPT.check_password_hash(user.password, user_details['password']):
-                    return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email})}}, 200
+                    return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email}, expires_delta=datetime.timedelta(days=1))}}, 200
                 return {'success': False, 'message':'Invalid credentials'}, 401
             return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
         return {'success': False, 'message':'please provide a valid email'}, 409 
@@ -483,6 +483,10 @@ class ManageRsvp(RsvpParams, Resource):
               description: Authorization token required for protected end points. Format should be 'Bearer token'
               type: string
               required: true
+            - in: query
+              name: page
+              type: int
+              required: false
             - in: path
               name: event_id
               type: string
@@ -493,10 +497,18 @@ class ManageRsvp(RsvpParams, Resource):
             401:
                 description: Rsvp not added to event
         """
-        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id)
-        data = rsvps_schema.dump(rsvp).data
+        args = self.param.parse_args()
+        page = args.get('page', 1)
+        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).paginate(page, app_config['items'], False)
+        data = rsvps_schema.dump(rsvp.items).data
         if data:
-            return {'success':True, 'payload':data}, 200
+            next_url=""
+            previous_url=""
+            if rsvp.has_next:
+                next_url = API.url_for(ManageRsvp, event_id=event_id,page=rsvp.next_num)
+            if rsvp.has_prev:
+                previous_url = API.url_for(ManageRsvp, event_id=event_id,page=rsvp.prev_num)
+            return {'success':True, 'page_navigation':{'next':next_url, 'previous':previous_url}, 'payload':data}, 200
         return {'success':False, 'message':'there are no rsvps for that event'}, 401
 
     def post(self, event_id):

@@ -47,6 +47,7 @@ class RsvpParams(object):
     Rsvp endpoint params
     """
     param = reqparse.RequestParser()
+    param.add_argument('page', required=False, type=int)
     param.add_argument('creator', required=False)
     param.add_argument('client_email', type=str, required=False)
     param.add_argument('accept_status', required=False )
