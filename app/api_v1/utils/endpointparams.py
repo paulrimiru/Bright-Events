@@ -36,6 +36,7 @@ class EventParams(object):
     Events endpoint params
     """
     param = reqparse.RequestParser()
+    param.add_argument('page', type=int, required=False)
     param.add_argument('name', type=str, required=False)
     param.add_argument('location', type=str, required=False)
     param.add_argument('host', type=str, required=False)

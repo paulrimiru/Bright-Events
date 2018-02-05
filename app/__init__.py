@@ -31,8 +31,8 @@ MIGRATE = Migrate(APP)
 MANAGER = Manager(APP)
 MANAGER.add_command('db', MigrateCommand)
 
-APP.register_blueprint(api_v1, url_prefix='/api/v1')
 APP.register_blueprint(api_v2, url_prefix='/api/v2')
+APP.register_blueprint(api_v1, url_prefix='/api/v1')
 APP.register_blueprint(flasky, url_prefix='/flasky')
 
 swagger = Swagger(APP)

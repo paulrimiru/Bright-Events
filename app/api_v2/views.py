@@ -1,5 +1,8 @@
 from datetime import datetime
+from flask import url_for
 from flask_restful import Resource
+from app.api_v2 import API
+from instance.config import app_config
 
 from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
                                             EventParams, \
@@ -25,29 +28,37 @@ def validate_password(password):
     if len(password) < 6:
         return False
     return True
-
+def validate_params(params):
+    for param in params:
+        if not param:
+            return False
+    return True
 def register_user(user_details):
-    if validate_email(user_details['email']):
-        if validate_password(user_details['password']):
-            user = Users(user_details['username'], user_details['email'], user_details['password'])
-            DB.session.add(user)
-            try:
-                DB.session.commit()
-            except IntegrityError:
-                return {'success': False, 'message':'email already in exists in the system'}, 409  
-            return {'id':user.id, 'username': user_details['username'], 'email':user_details['email']}, 201
-        return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
-    return {'success': False, 'message':'please provide a valid email'}, 409 
+    if user_details['email'] and user_details['password'] and user_details['username']:
+        if validate_email(user_details['email']):
+            if validate_password(user_details['password']):
+                user = Users(user_details['username'], user_details['email'], user_details['password'])
+                DB.session.add(user)
+                try:
+                    DB.session.commit()
+                except IntegrityError:
+                    return {'success': False, 'message':'email already in exists in the system'}, 409  
+                return {'id':user.id, 'username': user_details['username'], 'email':user_details['email']}, 201
+            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
+        return {'success': False, 'message':'please provide a valid email'}, 409
+    return {'success':False, 'message':'please ensure that all your details are provided'}, 409
 
 def login_user(user_details):
-    if validate_email(user_details['email']):
-        if validate_password(user_details['password']):
-            user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
-            if user and BCRYPT.check_password_hash(user.password, user_details['password']):
-                return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email})}}, 200
-            return {'success': False, 'message':'Invalid credentials'}, 401
-        return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
-    return {'success': False, 'message':'please provide a valid email'}, 409 
+    if user_details['email'] and user_details['password']:
+        if validate_email(user_details['email']):
+            if validate_password(user_details['password']):
+                user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
+                if user and BCRYPT.check_password_hash(user.password, user_details['password']):
+                    return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email})}}, 200
+                return {'success': False, 'message':'Invalid credentials'}, 401
+            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
+        return {'success': False, 'message':'please provide a valid email'}, 409 
+    return {'success':True, 'message':'please ensure that you provide all your details'}, 409
 def identity(payload):
     user_id = payload['identity']
     return {"user_id": user_id}
@@ -202,6 +213,37 @@ def encoder(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
 class Events(EventParams, Resource):
+    def get(self):
+        """
+        Retreive all events
+        ---
+        tags:
+            - Events V2
+        parameters:
+            - in: query
+              name: page
+              type: int
+              required: false
+        responses:
+            201:
+                description: Events retrieved
+            401:
+                description: Events could not be retrieved
+        """
+        args = self.param.parse_args()
+        page = args.get('page', 1)
+        events = Event.query.paginate(page, app_config['items'], False)
+        myresult = events_schema.dump(events.items)
+        if bool(myresult.data):
+            next_url=""
+            previous_url=""
+            if events.has_next:
+                next_url = API.url_for(Events, page=events.next_num)
+            if events.has_prev:
+                previous_url = API.url_for(Events, page=events.prev_num)
+            return {'success':True,'page_navigation':{'next':next_url, 'previous':previous_url} ,'payload':{'event_list':myresult.data}}, 200
+        return {'success':False, 'message':'sorry no events at the momment'}, 401
+
     @jwt_required
     def post(self):
         """
@@ -245,38 +287,20 @@ class Events(EventParams, Resource):
             401:
                 description: Event not created
         """
-        args = self.param.parse_args()
-        event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
-        DB.session.add(event)
 
-        try:
-            DB.session.commit()
-        except IntegrityError:
-            return {'success':False, 'message': 'Could not proccess your request'}, 401
-        DB.session.refresh(event)
-        args.update({'id':str(event.id)})
-        return {'success': True, 'payload': args}, 201
-    def get(self):
-        """
-        Retreive all events
-        ---
-        tags:
-            - Events V2
-        responses:
-            201:
-                description: Events retrieved
-            401:
-                description: Events could not be retrieved
-        """
         args = self.param.parse_args()
-        myresult = None
-        events = None
+        if validate_params(args):
+            event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
+            DB.session.add(event)
 
-        events = Event.query.all()
-        myresult = events_schema.dump(events)
-        if bool(myresult.data):
-            return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-        return {'success':False, 'message':'sorry no events at the momment'}, 401
+            try:
+                DB.session.commit()
+            except IntegrityError:
+                return {'success':False, 'message': 'Could not proccess your request'}, 401
+            DB.session.refresh(event)
+            args.update({'id':str(event.id)})
+            return {'success': True, 'payload': args}, 201
+        return {'success':False, 'message':'please ensure that all the details are passed'}, 401
     
 class ManageEvents(EventParams, Resource):
     
@@ -407,12 +431,12 @@ class FilterEvents(FilterParam, Resource):
               description: Authorization token required for protected end points. Format should be 'Bearer token'
               type: string
               required: true
-            - in: formData
+            - in: query
               name: location
               type: string
               description: filter events by location
               required: false
-            - in: formData
+            - in: query
               name: category
               type: string
               description: filter events by category
@@ -426,9 +450,8 @@ class FilterEvents(FilterParam, Resource):
         args = self.param.parse_args()
         myresult = None
         events = None
-        print(">>>>>>", args)
-        if args['location']:
-            if args['category']:
+        if args["location"]:
+            if args["category"]:
                 events = DB.session.query(Event).filter(Event.location == args["location"]).filter(Event.category == args["category"])
                 myresult = events_schema.dump(events)
                 if bool(myresult.data):
@@ -498,20 +521,22 @@ class ManageRsvp(RsvpParams, Resource):
                 description: Rsvp not added to event
         """
         args = self.param.parse_args()
-        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
-        
-        if rsvp:
-            return {'success':False, 'message':'you already booked this event'}, 401
+        if validate_params(args):
+            rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
+            
+            if rsvp:
+                return {'success':False, 'message':'you already booked this event'}, 401
 
-        rsvp = Rsvp(event_id, args['client_email'])
-        DB.session.add(rsvp)
-        try:
-            DB.session.commit()
-        except IntegrityError:
-            return {'success':False, 'message':'Event does not exist'}, 401
+            rsvp = Rsvp(event_id, args['client_email'])
+            DB.session.add(rsvp)
+            try:
+                DB.session.commit()
+            except IntegrityError:
+                return {'success':False, 'message':'Event does not exist'}, 401
 
-        DB.session.refresh(rsvp)
-        return {'success':True, 'payload':{'id':rsvp.id}}, 201
+            DB.session.refresh(rsvp)
+            return {'success':True, 'payload':{'id':rsvp.id}}, 201
+        return {'success':False, 'message':'please ensure that you have provided all the required details'}, 401
     @jwt_required
     def put(self, event_id):
         """
@@ -544,12 +569,14 @@ class ManageRsvp(RsvpParams, Resource):
                 description: Rsvp could not be accepted or rejected
         """
         args = self.param.parse_args()
-        rsvp = Rsvp.query.filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
-        if rsvp:
-            rsvp.accepted = args['accept_status']
-            DB.session.commit()
-            DB.session.refresh(rsvp)
-            if rsvp.accepted:
-                return {'success':True, 'payload':{'id':rsvp.id, 'status':'accepted'}}, 200
-            return {'success':True, 'payload':{'id':rsvp.id, 'status':'rejected'}}, 200
-        return {'success':False, 'message':'rsvp not found'}, 401
+        if validate_params(args):
+            rsvp = Rsvp.query.filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
+            if rsvp:
+                rsvp.accepted = args['accept_status']
+                DB.session.commit()
+                DB.session.refresh(rsvp)
+                if rsvp.accepted:
+                    return {'success':True, 'payload':{'id':rsvp.id, 'status':'accepted'}}, 200
+                return {'success':True, 'payload':{'id':rsvp.id, 'status':'rejected'}}, 200
+            return {'success':False, 'message':'rsvp not found'}, 401
+        return {'success':False, 'message':'please ensure that you provide all the required fields'}, 401

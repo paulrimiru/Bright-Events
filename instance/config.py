@@ -31,5 +31,6 @@ app_config = {
     'production': ProductionConfig,
     'test': TesingConfig,
     'configobj':Config,
-    'SECRET_KEY':'secret_key'
+    'SECRET_KEY':'secret_key',
+    'items':2
 }
