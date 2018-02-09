@@ -32,5 +32,5 @@ app_config = {
     'test': TesingConfig,
     'configobj':Config,
     'SECRET_KEY':'secret_key',
-    'items':2
+    'limit':2
 }

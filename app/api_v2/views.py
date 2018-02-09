@@ -7,7 +7,7 @@ from instance.config import app_config
 from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
                                             EventParams, \
                                             PasswordResetParams, RsvpParams, \
-                                            FilterParam 
+                                            SearchParam 
 from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
                               JWTMANAGER, event_schema
@@ -30,7 +30,7 @@ def validate_password(password):
     return True
 def validate_params(params):
     for param in params:
-        if not param:
+        if isinstance(params.get(param), str) and params.get(param) == "":
             return False
     return True
 def register_user(user_details):
@@ -59,6 +59,7 @@ def login_user(user_details):
             return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
         return {'success': False, 'message':'please provide a valid email'}, 409 
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
+
 def identity(payload):
     user_id = payload['identity']
     return {"user_id": user_id}
@@ -232,7 +233,8 @@ class Events(EventParams, Resource):
         """
         args = self.param.parse_args()
         page = args.get('page', 1)
-        events = Event.query.paginate(page, app_config['items'], False)
+        limit = args.get('limit', app_config['limit'])
+        events = Event.query.paginate(page, limit, False)
         myresult = events_schema.dump(events.items)
         if bool(myresult.data):
             next_url=""
@@ -275,7 +277,7 @@ class Events(EventParams, Resource):
               required: true
             - in: formData
               name: host
-              type: string
+              type: int
               required: true
             - in: formData
               name: private
@@ -289,18 +291,20 @@ class Events(EventParams, Resource):
         """
 
         args = self.param.parse_args()
-        if validate_params(args):
-            event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
-            DB.session.add(event)
+        if args['host'] and isinstance(args['host'], int):
+            if validate_params(args):
+                event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
+                DB.session.add(event)
 
-            try:
-                DB.session.commit()
-            except IntegrityError:
-                return {'success':False, 'message': 'Could not proccess your request'}, 401
-            DB.session.refresh(event)
-            args.update({'id':str(event.id)})
-            return {'success': True, 'payload': args}, 201
-        return {'success':False, 'message':'please ensure that all the details are passed'}, 401
+                try:
+                    DB.session.commit()
+                except IntegrityError:
+                    return {'success':False, 'message': 'Could not proccess your request'}, 401
+                DB.session.refresh(event)
+                args.update({'id':str(event.id)})
+                return {'success': True, 'payload': {'event_id':str(event.id)}}, 201
+            return {'success':False, 'message':'please ensure that all the details are passed'}, 401
+        return {'success':False, 'message':'Please ensure that the host field is not empty and is an integer'}, 401
     
 class ManageEvents(EventParams, Resource):
     
@@ -374,13 +378,18 @@ class ManageEvents(EventParams, Resource):
         event = DB.session.query(Event).get(event_id)
         args = self.param.parse_args()
         if event:
-            event.name = args['name']
-            event.location = args['location']
-            event.category = args['category']
-            event.time = args['time']
-
+            if args['name']:
+                event.name = args['name']
+            if args['location']:
+                event.location = args['location']
+            if args['location']:
+                event.category = args['category']
+            if args['location']:
+                event.time = args['time']
+            
             DB.session.commit()
-            return {'success':True, 'payload':args}, 200
+            DB.session.refresh(event)
+            return {'success':True, 'payload':event_schema.dump(event)}, 200
         return {'success':False, 'message':'event not found'}, 401
     @jwt_required
     def delete(self, event_id):
@@ -417,7 +426,7 @@ class ManageEvents(EventParams, Resource):
             return {'success': True, 'payload':{'id':event_id}}, 200
         return {'success':False, 'message':'event not found'}, 401
 
-class FilterEvents(FilterParam, Resource):
+class SearchEvent(SearchParam, Resource):
     @jwt_required
     def get(self):
         """
@@ -430,6 +439,11 @@ class FilterEvents(FilterParam, Resource):
               name: Authorization
               description: Authorization token required for protected end points. Format should be 'Bearer token'
               type: string
+              required: true
+            - in: query
+              name: q
+              type: string
+              description: search event by name
               required: true
             - in: query
               name: location
@@ -450,25 +464,31 @@ class FilterEvents(FilterParam, Resource):
         args = self.param.parse_args()
         myresult = None
         events = None
-        if args["location"]:
-            if args["category"]:
-                events = DB.session.query(Event).filter(Event.location == args["location"]).filter(Event.category == args["category"])
+        if args["q"]:
+            if args["location"]:
+                if args["category"]:
+                    events = DB.session.query(Event).filter(Event.name.like(args['q'])).filter(Event.location == args["location"]).filter(Event.category == args["category"])
+                    myresult = events_schema.dump(events)
+                    if bool(myresult.data):
+                        return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+                    return {'success':False, 'message':'sorry no events in this location in that category'}, 401
+                events = DB.session.query(Event).filter(Event.name.like(args['q'])).filter(Event.location == args["location"])
                 myresult = events_schema.dump(events)
                 if bool(myresult.data):
                     return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-                return {'success':False, 'message':'sorry no events in this location in that category'}, 401
-            events = DB.session.query(Event).filter(Event.location == args["location"])
+                return {'success':False, 'message':'sorry no events in this location'}, 401
+            elif args["category"]:
+                events = DB.session.query(Event).filter(Event.name.like(args['q'])).filter(Event.category == args["category"])
+                myresult = events_schema.dump(events)
+                if bool(myresult.data):
+                    return {'success':True, 'payload':{'event_list':myresult.data}}, 200
+                return {'success':False, 'message':'sorry no events in this category'}, 401
+            events = DB.session.query(Event).filter(Event.name.like(args['q']))
             myresult = events_schema.dump(events)
             if bool(myresult.data):
                 return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events in this location'}, 401
-        elif args["category"]:
-            events = DB.session.query(Event).filter(Event.category == args["category"])
-            myresult = events_schema.dump(events)
-            if bool(myresult.data):
-                return {'success':True, 'payload':{'event_list':myresult.data}}, 200
-            return {'success':False, 'message':'sorry no events in this category'}, 401
-        return {'success':False, 'message':'please provide a search parameter'}, 400
+            return {'success':False, 'message':'sorry no events in this name'}, 401
+        return {'success':False, 'message':'please ensure you pass a name to search'}, 401
 class ManageRsvp(RsvpParams, Resource):
     @jwt_required
     def get(self, event_id):
@@ -499,7 +519,8 @@ class ManageRsvp(RsvpParams, Resource):
         """
         args = self.param.parse_args()
         page = args.get('page', 1)
-        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).paginate(page, app_config['items'], False)
+        limit = args.get('limit', app_config['limit'])
+        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).paginate(page, limit, False)
         data = rsvps_schema.dump(rsvp.items).data
         if data:
             next_url=""

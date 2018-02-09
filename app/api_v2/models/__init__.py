@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from marshmallow import fields, Schema
+
+from sqlalchemy import event
 import uuid
 
 BCRYPT = Bcrypt()
@@ -59,8 +61,8 @@ class Event(DB.Model):
     date = DB.Column(DB.DateTime())
     private = DB.Column(DB.Boolean())
     rsvps = DB.relationship('Rsvp', backref='event', lazy=True)
-    date_created = DB.Column(DB.DateTime(), default=datetime.now())
-    date_modified = DB.Column(DB.DateTime(), default=datetime.now())
+    date_created = DB.Column(DB.DateTime())
+    date_modified = DB.Column(DB.DateTime())
 
 
     def __init__(self, name, location, host, category, date, private=False):
@@ -127,3 +129,11 @@ class TokenBlacklistSchema(Schema):
 
 token_schema = TokenBlacklistSchema()
 tokens_schema = TokenBlacklistSchema(many = True)
+
+@event.listens_for(Event, 'before_insert')
+def update_create_and_modified(mapper, connection, target):
+    target.date_created = datetime.utcnow()
+    target.date_modified = datetime.utcnow()
+@event.listens_for(Event, 'before_update')
+def update_modified(mapper, connection, target):
+    target.date_modified = datetime.utcnow()
