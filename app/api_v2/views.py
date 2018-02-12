@@ -25,9 +25,26 @@ def validate_email(email):
         return True
     return False
 def validate_password(password):
-    if len(password) < 6:
-        return False
-    return True
+    repetitve_reg =  re.compile(r'(\w)\1*')
+    length_reg = re.compile(r'.{6,}')
+    uppercase_reg = re.compile(r'[A-Z]')
+    lowercase_reg = re.compile(r'[a-z]')
+    digit_reg = re.compile(r'[0-9]')
+    special_reg = re.compile(r'[!@#$%&*]')
+
+    if length_reg.search(password):
+        if uppercase_reg.search(password):
+            if lowercase_reg.search(password):
+                if digit_reg.search(password):
+                    if special_reg.search(password):
+                        if repetitve_reg.search(password):
+                            return {'success':True}
+                        return {'success':False, 'message':'password must not  contain repetitive letters characters'}
+                    return {'success':False, 'message':'password must contain special characters'}
+                return {'success':False, 'message':'password must contain sa digit'}
+            return {'success':False, 'message':'password must contain lower case characters'}
+        return {'success':False, 'message':'password must contain upper case characters'}
+    return {'success':False, 'message':'password must be six characters or longer'}
 def validate_params(params):
     for param in params:
         if isinstance(params.get(param), str) and params.get(param) == "":
@@ -35,7 +52,9 @@ def validate_params(params):
     return True
 def register_user(user_details):
     if user_details['email'] and user_details['password'] and user_details['username']:
-        if validate_email(user_details['email']):
+        passwor_val = validate_password(user_details['password'])
+
+        if passwor_val.get('success'):
             if validate_password(user_details['password']):
                 user = Users(user_details['username'], user_details['email'], user_details['password'])
                 DB.session.add(user)
@@ -45,18 +64,19 @@ def register_user(user_details):
                     return {'success': False, 'message':'email already in exists in the system'}, 409  
                 return {'id':user.id, 'username': user_details['username'], 'email':user_details['email']}, 201
             return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
-        return {'success': False, 'message':'please provide a valid email'}, 409
+        return {'success': False, 'message':passwor_val.get('message')}, 409
     return {'success':False, 'message':'please ensure that all your details are provided'}, 409
 
 def login_user(user_details):
     if user_details['email'] and user_details['password']:
         if validate_email(user_details['email']):
-            if validate_password(user_details['password']):
+            passwor_val = validate_password(user_details['password'])
+            if passwor_val.get('success'):
                 user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
                 if user and BCRYPT.check_password_hash(user.password, user_details['password']):
                     return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email}, expires_delta=datetime.timedelta(days=1))}}, 200
                 return {'success': False, 'message':'Invalid credentials'}, 401
-            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
+            return {'success': False, 'message':passwor_val.get('message')}, 409 
         return {'success': False, 'message':'please provide a valid email'}, 409 
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
 
