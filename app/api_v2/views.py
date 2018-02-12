@@ -20,11 +20,13 @@ import json
 import datetime
 import re
 def validate_email(email):
+    """validates if the email provided is the correct email"""
     regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
     if regex.match(email):
         return True
     return False
 def validate_password(password):
+    """chaecks for password strength"""
     repetitve_reg =  re.compile(r'(\w)\1*')
     length_reg = re.compile(r'.{6,}')
     uppercase_reg = re.compile(r'[A-Z]')
@@ -46,11 +48,13 @@ def validate_password(password):
         return {'success':False, 'message':'password must contain upper case characters'}
     return {'success':False, 'message':'password must be six characters or longer'}
 def validate_params(params):
+    """validates thet params passed are not empty"""
     for param in params:
         if isinstance(params.get(param), str) and params.get(param) == "":
             return False
     return True
 def register_user(user_details):
+    """Registers users"""
     if user_details['email'] and user_details['password'] and user_details['username']:
         passwor_val = validate_password(user_details['password'])
 
@@ -68,6 +72,7 @@ def register_user(user_details):
     return {'success':False, 'message':'please ensure that all your details are provided'}, 409
 
 def login_user(user_details):
+    """handles user login"""
     if user_details['email'] and user_details['password']:
         if validate_email(user_details['email']):
             passwor_val = validate_password(user_details['password'])
@@ -81,17 +86,20 @@ def login_user(user_details):
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
 
 def identity(payload):
+    """extracts the identity of a token"""
     user_id = payload['identity']
     return {"user_id": user_id}
 
 @JWTMANAGER.token_in_blacklist_loader
 def check_if_token_is_blacklisted(token):
+    """checks if a token ha been black listed"""
     jwt_token = token.get('jti')
     mytoken = DB.session.query(TokenBlackList).filter(TokenBlackList.token == jwt_token).first()
     if mytoken:
         return True
     return False
 class RegisterUser(RegisterParams, Resource):
+    """resource to perform user registration"""
     def post(self):
         """
         Register users
@@ -120,6 +128,7 @@ class RegisterUser(RegisterParams, Resource):
         args = self.param.parse_args()
         return register_user(args)
 class LoginUser(LoginParams, Resource):
+    """resource to perform user login"""
     def post(self):
         """
         Login users
@@ -144,6 +153,7 @@ class LoginUser(LoginParams, Resource):
         args = self.param.parse_args()
         return login_user(args)
 class LogoutUser(Resource):
+    """resource to perform user logout functionality"""
     @jwt_required
     def post(self):
         """
@@ -174,6 +184,7 @@ class LogoutUser(Resource):
         return {'success':True, 'payload':{'user_id':token.get('identity').get('id')}}
         
 class PasswordReset(PasswordResetParams, Resource):
+    """resource to perform user password reset functionality"""
     def post(self):
         """
         Reset users password
@@ -234,6 +245,7 @@ def encoder(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
 class Events(EventParams, Resource):
+    """resource to perform event creation and retrieval"""
     def get(self):
         """
         Retreive all events
@@ -327,7 +339,7 @@ class Events(EventParams, Resource):
         return {'success':False, 'message':'Please ensure that the host field is not empty and is an integer'}, 401
     
 class ManageEvents(EventParams, Resource):
-    
+    """Resource to perfrm event editing, single event retrieval and deletion"""
     def get(self, event_id):
         """
         get single event
@@ -447,6 +459,7 @@ class ManageEvents(EventParams, Resource):
         return {'success':False, 'message':'event not found'}, 401
 
 class SearchEvent(SearchParam, Resource):
+    """resource to carry out event searching"""
     @jwt_required
     def get(self):
         """
@@ -510,6 +523,7 @@ class SearchEvent(SearchParam, Resource):
             return {'success':False, 'message':'sorry no events in this name'}, 401
         return {'success':False, 'message':'please ensure you pass a name to search'}, 401
 class ManageRsvp(RsvpParams, Resource):
+    """event to carry out rsvp CRUD operation"""
     @jwt_required
     def get(self, event_id):
         """
