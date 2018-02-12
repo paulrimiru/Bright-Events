@@ -47,13 +47,13 @@ class Controller(object):
             return {'success':False, 'message':'password was not reset'}
         return {'success':False, 'message':resp.get('message')}
 
-    def add_event(self, eventData):
+    def add_event(self, event_data):
         """
         creates an event
         """
-        resp = self.events.create_event(eventData)
+        resp = self.events.create_event(event_data)
         if resp.get('success'):
-            return {'success':True, 'payload':eventData}
+            return {'success':True, 'payload':event_data}
         return {'success':False, 'message':resp.get('message')}
     def retrieve_event(self, user_id):
         """
@@ -91,11 +91,11 @@ class Controller(object):
         resp = self.events.get_events()
         if resp.get('success'):
             resp = resp.get('message')
-            EVENTLIST = []
+            eventlist = []
             for key in resp:
-                for USEREVENT in resp.get(key):
-                    EVENTLIST.append(resp.get(key).get(USEREVENT))
-            return {'success':True, 'payload':EVENTLIST}
+                for userevent in resp.get(key):
+                    eventlist.append(resp.get(key).get(userevent))
+            return {'success':True, 'payload':eventlist}
         return {'success':False, 'message':resp.get('message')}
     def add_rsvp(self, user_id, event_id, email):
         """
@@ -129,13 +129,19 @@ class Controller(object):
         if resp.get('success'):
             return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
-    def accept_rsvp(self, userId, eventId, clientEmail):
-        resp = self.events.confirm_rsvp(userId, eventId, clientEmail)
+    def accept_rsvp(self, user_id, event_id, clientemail):
+        """
+        accepts a specific rsvp
+        """
+        resp = self.events.confirm_rsvp(user_id, event_id, clientemail)
         if resp.get('success'):
             return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}
-    def reject_rsvp(self, userId, eventId, clientEmail):
-        resp = self.events.reject_rsvp(userId, eventId, clientEmail)
+    def reject_rsvp(self, user_id, event_id, clientemail):
+        """
+        rejects a specific rsvp
+        """
+        resp = self.events.reject_rsvp(user_id, event_id, clientemail)
         if resp.get('success'):
             return {'success':True, 'payload':resp.get('message')}
         return {'success':False, 'message':resp.get('message')}  

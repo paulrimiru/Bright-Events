@@ -10,27 +10,30 @@ from .utils.endpointparams import ResetParams, RsvpParams, LogoutParams, ManageR
 
 import re
 CONTROLLER = Controller()
-mysession = {}
+MYSESSION = {}
 def auth_required(func):
     """Wrapper to check user authorization"""
     @wraps(func)
     def auth(*args, **kargs):
         """checks for if the user is logged in through the session"""
-        if 'signed_in' not in mysession or not mysession['signed_in']:
+        if 'signed_in' not in MYSESSION or not MYSESSION['signed_in']:
             return {"success":False,
                     'message': 'Authentication is required to access this resource'}, 302
         return func(*args, **kargs)
     return auth
 def validate_email(email):
+    """checks if email is valid"""
     regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
     if regex.match(email):
         return True
     return False
 def validate_password(password):
+    """checks for strong password"""
     if len(password) < 6:
         return False
     return True
 class Index(Resource):
+    """Resource for applicaion introduction"""
     def get(self):
         """
         Introduction to the Bright-Events API
@@ -44,7 +47,7 @@ class Index(Resource):
         return {'success':True, 'message':'welcome to Bright Events API'}, 200
 
 class Register(RegisterParams, Resource):
-    
+    """Resouce handles user registratiion"""
     def post(self):
         """
         Register users
@@ -117,8 +120,8 @@ class Authentication(LoginParams, Resource):
         args = self.param.parse_args()
         resp = CONTROLLER.login_user(args['email'], args['password'])
         if resp.get('success'):
-            mysession['user'] = resp.get('payload').get('id')
-            mysession['signed_in'] = True
+            MYSESSION['user'] = resp.get('payload').get('id')
+            MYSESSION['signed_in'] = True
             return resp, 201
         return resp, 409
 class Logout(LogoutParams, Resource):
@@ -145,14 +148,14 @@ class Logout(LogoutParams, Resource):
                 description: No user logged in at the momment
         """
         args = self.param.parse_args()
-        if 'user' in mysession:
-            if mysession['user'] == int(args['id']):
-                mysession.pop('user')
-                mysession['signed_in'] = False
+        if 'user' in MYSESSION:
+            if MYSESSION['user'] == int(args['id']):
+                MYSESSION.pop('user')
+                MYSESSION['signed_in'] = False
                 return {'success':True, 'payload':None}, 201
-            else:
-                return {'success':False, 'message':'user provided is not in session'}, 408
-        return {'success':False, 'message':'No user is logged i at the momment with your account'}, 409
+            return {'success':False, 'message':'user provided is not in session'}, 408
+        return {'success':False, 'message':'No user is logged i \
+                at the momment with your account'}, 409
 class ResetPassword(ResetParams, Resource):
     """
     Class resets users passwords
@@ -248,7 +251,7 @@ class Events(EventParams, Resource):
             'location':args['location'],
             'category':args['category'],
             'time':args['time'],
-            'creator':mysession['user'],
+            'creator':MYSESSION['user'],
             'rsvp':[]
         }
         resp = CONTROLLER.add_event(event_data)
@@ -283,7 +286,7 @@ class ManageEvent(EventParams, Resource):
     Class contains logic vto retrieveeingle events and delete events
     """
     @auth_required
-    def get(self, eventId):
+    def get(self, event_id):
         """
         Retrieve specific Event
         ---
@@ -291,7 +294,7 @@ class ManageEvent(EventParams, Resource):
             - Events
         parameters:
             - in: path
-              name: eventId
+              name: event_id
               type: int
               required: true
         responses:
@@ -300,18 +303,18 @@ class ManageEvent(EventParams, Resource):
             409:
                 description: Event could not be found
         """
-        if eventId:
-            resp = CONTROLLER.retrieve_single_event(int(mysession['user']), int(eventId))
+        if event_id:
+            resp = CONTROLLER.retrieve_single_event(int(MYSESSION['user']), int(event_id))
             if resp.get('success'):
                 return resp, 201
-        resp = CONTROLLER.retrieve_event(int(mysession['user']))
+        resp = CONTROLLER.retrieve_event(int(MYSESSION['user']))
         if resp.get('success'):
             print(resp)
             return resp, 201
         return resp, 409
 
     @auth_required
-    def delete(self, eventId):
+    def delete(self, event_id):
         """
         Delete specific Event
         ---
@@ -319,7 +322,7 @@ class ManageEvent(EventParams, Resource):
             - Events
         parameters:
             - in: path
-              name: eventId
+              name: event_id
               type: int
               required: true
         responses:
@@ -328,11 +331,11 @@ class ManageEvent(EventParams, Resource):
             409:
                 description: Event could not be deleted
         """
-        resp = CONTROLLER.delete_single_event(mysession['user'], int(eventId))
+        resp = CONTROLLER.delete_single_event(MYSESSION['user'], int(event_id))
         if resp.get('success'):
             return resp, 201
         return resp, 409
-    def put(self, eventId):
+    def put(self, event_id):
         """
         Edit specific Event
         ---
@@ -340,7 +343,7 @@ class ManageEvent(EventParams, Resource):
             - Events
         parameters:
             - in: path
-              name: eventId
+              name: event_id
               type: int
               required: true
             - in: formData
@@ -374,16 +377,16 @@ class ManageEvent(EventParams, Resource):
                 description: Event could not be edited
         """
         args = self.param.parse_args()
-        rsvp = CONTROLLER.retrieve_single_event(mysession['user'],
-                                             int(eventId)).get('payload').get('rsvp')
+        rsvp = CONTROLLER.retrieve_single_event(MYSESSION['user'],
+                                                int(event_id)).get('payload').get('rsvp')
         event_data = {
             'name':args['name'],
             'location':args['location'],
             'time':args['time'],
-            'creator':mysession['user'],
+            'creator':MYSESSION['user'],
             'rsvp':rsvp
         }
-        resp = CONTROLLER.edit_event(mysession['user'], int(eventId), event_data)
+        resp = CONTROLLER.edit_event(MYSESSION['user'], int(event_id), event_data)
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -392,7 +395,7 @@ class Rsvp(RsvpParams, Resource):
     """
     Class manipulates Rsvp of events
     """
-    def post(self, eventId):
+    def post(self, event_id):
         """
         Rsvp a particular event
         ---
@@ -400,7 +403,7 @@ class Rsvp(RsvpParams, Resource):
             - Events
         parameters:
             - in: path
-              name: eventId
+              name: event_id
               type: int
               required: true
             - in: formData
@@ -422,12 +425,12 @@ class Rsvp(RsvpParams, Resource):
         creator = args['creator']
         if not validate_email(email):
             return {'success':False, 'message':'invalid email'}, 409
-        resp = CONTROLLER.add_rsvp(int(creator), int(eventId), email)
+        resp = CONTROLLER.add_rsvp(int(creator), int(event_id), email)
         if resp.get('success'):
             return resp, 201
         return resp, 409
     @auth_required
-    def get(self, eventId):
+    def get(self, event_id):
         """
         Retrieve Rsvp for a particular event
         ---
@@ -435,7 +438,7 @@ class Rsvp(RsvpParams, Resource):
             - Rsvp
         parameters:
             - in: path
-              name: eventId
+              name: event_id
               type: int
               required: true
         responses:
@@ -444,7 +447,7 @@ class Rsvp(RsvpParams, Resource):
             409:
                 description: Rsvp not added to event
         """
-        resp = CONTROLLER.retrieve_rsvp(mysession['user'], eventId)
+        resp = CONTROLLER.retrieve_rsvp(MYSESSION['user'], event_id)
         if resp.get('success'):
             return resp, 201
         return resp, 409
@@ -461,7 +464,7 @@ class ManageRsvp(ManageRsvpParams, Resource):
             - Rsvp
         parameters:
             - in: formData
-              name: eventId
+              name: event_id
               type: string
               required: true
             - in: formData
@@ -479,15 +482,15 @@ class ManageRsvp(ManageRsvpParams, Resource):
                 description: Rsvp could not be accepted or rejected
         """
         args = self.param.parse_args()
-        eventId = args['eventId']
+        event_id = args['event_id']
         action = args['action']
         client_email = args['client_email']
         if action == 'cancel':
-            resp = CONTROLLER.reject_rsvp(mysession['user'], int(eventId), client_email)
+            resp = CONTROLLER.reject_rsvp(MYSESSION['user'], int(event_id), client_email)
             if resp.get('success'):
                 return resp, 201
             return resp, 409
-        resp = CONTROLLER.accept_rsvp(mysession['user'], int(eventId), client_email)
+        resp = CONTROLLER.accept_rsvp(MYSESSION['user'], int(event_id), client_email)
         if resp.get('success'):
             return resp, 201
         return resp, 409

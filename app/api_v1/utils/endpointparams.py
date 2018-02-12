@@ -58,7 +58,7 @@ class ManageRsvpParams(object):
     Manage Rsvps params
     """
     param = reqparse.RequestParser()
-    param.add_argument('eventId', required=True, help='please provide an event id')
+    param.add_argument('event_id', required=True, help='please provide an event id')
     param.add_argument('action', required=True, help='please provide an action to perform')
     param.add_argument('client_email', required=True, help='please provide the client email')
 class PasswordResetParams(object):
