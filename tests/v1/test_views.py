@@ -84,11 +84,11 @@ class TestViews(unittest.TestCase):
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'accept', 'client_email':'myemail@gmail.com'})
+        resp = self.app.put("/api/v1/manageRsvp", data={'event_id':'10', 'action':'accept', 'client_email':'myemail@gmail.com'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        resp = self.app.put("/api/v1/manageRsvp", data={'eventId':'10', 'action':'reject', 'client_email':'myemail@gmail.com'})
+        resp = self.app.put("/api/v1/manageRsvp", data={'event_id':'10', 'action':'reject', 'client_email':'myemail@gmail.com'})
         data = json.loads(resp.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
