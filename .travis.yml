@@ -10,6 +10,11 @@ notifications:
     on_success: change
 # command to run tests
 script: 
-  nosetests --with-coverage --cover-package=app/api/models && coverage report
+  nosetests --with-coverage --cover-package=app && coverage report
+before_script:
+  - psql -c 'create database bright_events;' -U postgres
+  - psql -c "CREATE USER mike WITH PASSWORD '10131994';" -U postgres
 after_success:
   coveralls
+services:
+  - postgresql

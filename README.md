@@ -64,3 +64,11 @@ To run the tests
 # Heroku
 
 [Bright Events](https://paul-bright-events.herokuapp.com/flasky)
+
+# Testing with postman
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/ffd8986b4b7da74bd754)
+
+# API Documentation
+
+[Bright Event Documentation](https://paul-bright-events.herokuapp.com/apidocs)
