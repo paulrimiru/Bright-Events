@@ -9,7 +9,6 @@ from flask_script import Manager
 from instance.config import app_config
 from .api_v1 import api_v1
 from .api_v2 import api_v2
-from .flasky import flasky
 from .api_v2.models import DB, BCRYPT, JWTMANAGER
 from .api_v2.views import login_user, identity
 
@@ -33,6 +32,5 @@ MANAGER.add_command('db', MigrateCommand)
 
 APP.register_blueprint(api_v2, url_prefix='/api/v2')
 APP.register_blueprint(api_v1, url_prefix='/api/v1')
-APP.register_blueprint(flasky, url_prefix='/flasky')
 
 swagger = Swagger(APP)

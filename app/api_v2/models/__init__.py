@@ -82,7 +82,7 @@ class EventSchema(Schema):
     category = fields.Str()
     is_private = fields.Bool()
 
-event_schema = EventSchema()
+event_schema = EventSchema(many=False)
 events_schema = EventSchema(many=True)
 
 

@@ -55,6 +55,7 @@ def validate_params(params):
     return True
 def register_user(user_details):
     """Registers users"""
+    print(user_details)
     if user_details['email'] and user_details['password'] and user_details['username']:
         passwor_val = validate_password(user_details['password'])
 
@@ -65,23 +66,20 @@ def register_user(user_details):
                 try:
                     DB.session.commit()
                 except IntegrityError:
-                    return {'success': False, 'message':'email already in exists in the system'}, 409  
+                    return {'success': False, 'message':'email already in exists in the system'}, 406  
                 return {'id':user.id, 'username': user_details['username'], 'email':user_details['email']}, 201
-            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 409 
-        return {'success': False, 'message':passwor_val.get('message')}, 409
-    return {'success':False, 'message':'please ensure that all your details are provided'}, 409
+            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 406 
+        return {'success': False, 'message':passwor_val.get('message')}, 406
+    return {'success':False, 'message':'please ensure that all your details are provided'}, 406
 
 def login_user(user_details):
     """handles user login"""
     if user_details['email'] and user_details['password']:
         if validate_email(user_details['email']):
-            passwor_val = validate_password(user_details['password'])
-            if passwor_val.get('success'):
-                user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
-                if user and BCRYPT.check_password_hash(user.password, user_details['password']):
-                    return {'success':True, 'payload':{'token':create_access_token({'id':user.id, 'email': user.email}, expires_delta=datetime.timedelta(days=1))}}, 200
-                return {'success': False, 'message':'Invalid credentials'}, 401
-            return {'success': False, 'message':passwor_val.get('message')}, 409 
+            user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
+            if user and BCRYPT.check_password_hash(user.password, user_details['password']):
+                return {'success':True, 'payload':{'user_id':user.id, 'token':create_access_token({'id':user.id, 'email': user.email}, expires_delta=datetime.timedelta(days=1))}}, 200
+            return {'success': False, 'message':'Invalid credentials'}, 401
         return {'success': False, 'message':'please provide a valid email'}, 409 
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
 
@@ -122,7 +120,7 @@ class RegisterUser(RegisterParams, Resource):
         responses:
             201:
                 description: A single user item
-            409:
+            406:
                 description: Another user with the same email is found
         """
         args = self.param.parse_args()
@@ -380,7 +378,7 @@ class ManageEvents(EventParams, Resource):
               name: Authorization
               description: Authorization token required for protected end points. Format should be 'Bearer token'
               type: string
-              required: true
+              required: false
             - in: path
               name: event_id
               type: string
@@ -388,19 +386,19 @@ class ManageEvents(EventParams, Resource):
             - in: formData
               name: name
               type: string
-              required: true
+              required: false
             - in: formData
               name: location
               type: string
-              required: true
+              required: false
             - in: formData
               name: category
               type: string
-              required: true
+              required: false
             - in: formData
               name: time
               type: string
-              required: true
+              required: false
         responses:
             201:
                 description: Specific event edited successfully
@@ -414,14 +412,14 @@ class ManageEvents(EventParams, Resource):
                 event.name = args['name']
             if args['location']:
                 event.location = args['location']
-            if args['location']:
+            if args['category']:
                 event.category = args['category']
-            if args['location']:
+            if args['time']:
                 event.time = args['time']
             
             DB.session.commit()
             DB.session.refresh(event)
-            return {'success':True, 'payload':event_schema.dump(event)}, 200
+            return {'success':True, 'payload':event_schema.dump(event)[0]}, 200
         return {'success':False, 'message':'event not found'}, 401
     @jwt_required
     def delete(self, event_id):
