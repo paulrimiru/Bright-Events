@@ -57,18 +57,14 @@ To run the tests
 
 * **Paul Rimiru** - *Initial work* - [PaulKariukiRimiru](https://github.com/PaulKariukiRimiru)
 
-# Github pages
+## Github pages
 
 [Bright Events](https://PaulKariukiRimiru.github.io/Bright-Events/)
 
-# Heroku
-
-[Bright Events](https://paul-bright-events.herokuapp.com/flasky)
-
-# Testing with postman
+## Testing with postman
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/ffd8986b4b7da74bd754)
 
-# API Documentation
+## API Documentation
 
 [Bright Event Documentation](https://paul-bright-events.herokuapp.com/apidocs)
