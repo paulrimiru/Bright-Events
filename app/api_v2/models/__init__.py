@@ -4,13 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from marshmallow import fields, Schema
-
+from flask_mail import Mail
 from sqlalchemy import event
 import uuid
 
 BCRYPT = Bcrypt()
 DB = SQLAlchemy()
 JWTMANAGER = JWTManager()
+MAIL = Mail()
 
 class Users(DB.Model):
     """

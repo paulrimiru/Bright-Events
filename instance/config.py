@@ -11,6 +11,16 @@ class Config(object):
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    MAIL_SERVER='smtp.gmail.com'
+    MAIL_PORT = 465
+
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+
+    MAIL_USERNAME = 'mikethedeveloper7@gmail.com'
+    MAIL_PASSWORD = 'Ripper10131994!'
+    ADMINS = ['mikethedeveloper7@gmail.com']
     TESTING = False
 class DevelopmentConfig(Config):
     """Configurations for Development."""

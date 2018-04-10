@@ -10,12 +10,13 @@ from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
                                             SearchParam 
 from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
-                              JWTMANAGER, event_schema
+                              JWTMANAGER, event_schema, MAIL
 from flask_jwt_extended import jwt_required, create_access_token, \
                                 get_raw_jwt
 
 from sqlalchemy.exc import IntegrityError, InternalError
-
+from flask_mail import Message
+from instance.config import Config
 import json
 import datetime
 import re
@@ -207,7 +208,12 @@ class PasswordReset(PasswordResetParams, Resource):
             DB.session.add(reset_pass)
             DB.session.commit()
             reset = DB.session.query(ResetPassword).filter(ResetPassword.user == user).first()
-            return {'success':True, 'payload':{'code':reset.code}}, 201
+            
+            msg = Message("Verification code", sender=Config.ADMINS[0], recipients=[args['email']])
+            msg.body = "Hey there here is your verification code: " + reset.code
+            MAIL.send(msg)
+
+            return {'success':True, 'message':'code was sent to your mail'}, 201
         return {'success':False, 'message':'The user provided does not exist'}, 401
     def put(self):
         """
@@ -321,6 +327,7 @@ class Events(EventParams, Resource):
         """
 
         args = self.param.parse_args()
+        print(args)
         if args['host'] and isinstance(args['host'], int):
             if validate_params(args):
                 event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
@@ -329,6 +336,7 @@ class Events(EventParams, Resource):
                 try:
                     DB.session.commit()
                 except IntegrityError:
+                    print(IntegrityError.statement)
                     return {'success':False, 'message': 'Could not proccess your request'}, 401
                 DB.session.refresh(event)
                 args.update({'id':str(event.id)})
