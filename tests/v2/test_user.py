@@ -58,8 +58,6 @@ class UserTest(ApiTestCase):
         data = json.loads(response.data.decode('utf-8'))
         self.assertDictEqual({"id":1, "username":"test user", "email":"paulrimiru@gmail.com"}, data)
 
-        data = json.loads(response.data.decode('utf-8'))
-        self.assertTrue(data.get('success'))
         response = self.app.put('/api/v2/auth/reset-password', data={
             'code': "bad code",
             'password': 'Aabc123!'
