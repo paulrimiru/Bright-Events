@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import url_for
+from flask import url_for, jsonify
 from flask_restful import Resource
 from app.api_v2 import API
 from instance.config import app_config
@@ -20,6 +20,14 @@ from instance.config import Config
 import json
 import datetime
 import re
+
+@JWTMANAGER.expired_token_loader
+def token_expiry_response():
+    return jsonify({
+        'status': False,
+        'message': 'token provided is expired please login again'
+    })
+
 def validate_email(email):
     """validates if the email provided is the correct email"""
     regex = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
@@ -83,6 +91,12 @@ def login_user(user_details):
             return {'success': False, 'message':'Invalid credentials'}, 401
         return {'success': False, 'message':'please provide a valid email'}, 409 
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
+
+def isStringBool(sample):
+    """checks if a String provided is a boolean"""
+    if sample in ("True", "False", "true", "false"):
+        return True
+    return False
 
 def identity(payload):
     """extracts the identity of a token"""
@@ -276,9 +290,9 @@ class Events(EventParams, Resource):
             next_url=""
             previous_url=""
             if events.has_next:
-                next_url = API.url_for(Events, page=events.next_num)
+                next_url = API.url_for(Events, limit=args.get('limit'), page=events.next_num)
             if events.has_prev:
-                previous_url = API.url_for(Events, page=events.prev_num)
+                previous_url = API.url_for(Events, limit=args.get('limit'), page=events.prev_num)
             return {'success':True,'page_navigation':{'next':next_url, 'previous':previous_url} ,'payload':{'event_list':myresult.data}}, 200
         return {'success':False, 'message':'sorry no events at the momment'}, 401
 
@@ -327,21 +341,18 @@ class Events(EventParams, Resource):
         """
 
         args = self.param.parse_args()
-        print(args)
         if args['host'] and isinstance(args['host'], int):
             if validate_params(args):
                 event = Event(args['name'], args['location'], args['host'], args['category'], args['time'])
                 DB.session.add(event)
-
                 try:
                     DB.session.commit()
-                except IntegrityError:
-                    print(IntegrityError.statement)
+                except IntegrityError :
                     return {'success':False, 'message': 'Could not proccess your request'}, 401
                 DB.session.refresh(event)
                 args.update({'id':str(event.id)})
                 return {'success': True, 'payload': {'event_id':str(event.id)}}, 201
-            return {'success':False, 'message':'please ensure that all the details are passed'}, 401
+            return {'success':False, 'message':'please ensure that all the details are correct'}, 401
         return {'success':False, 'message':'Please ensure that the host field is not empty and is an integer'}, 401
     
 class ManageEvents(EventParams, Resource):
@@ -368,11 +379,13 @@ class ManageEvents(EventParams, Resource):
             401:
                 description: Event could not be edited
         """
-        event = Event.query.get(event_id)
-        if event:
-            result = event_schema.dump(event)
-            return {'success':True, 'payload':result.data}, 200
-        return {'success':False, 'message':'sorry could not find the requested event'}, 401
+        if isinstance(event_id, int)or isinstance(int(event_id), int):
+            event = Event.query.get(event_id)
+            if event:
+                result = event_schema.dump(event)
+                return {'success':True, 'payload':result.data}, 200
+            return {'success':False, 'message':'sorry could not find the requested event'}, 401
+        return {'success':False, 'message': 'invalid event id'}, 401
 
     @jwt_required
     def put(self, event_id):
@@ -413,22 +426,24 @@ class ManageEvents(EventParams, Resource):
             401:
                 description: Event could not be edited
         """
-        event = DB.session.query(Event).get(event_id)
-        args = self.param.parse_args()
-        if event:
-            if args['name']:
-                event.name = args['name']
-            if args['location']:
-                event.location = args['location']
-            if args['category']:
-                event.category = args['category']
-            if args['time']:
-                event.time = args['time']
-            
-            DB.session.commit()
-            DB.session.refresh(event)
-            return {'success':True, 'payload':event_schema.dump(event)[0]}, 200
-        return {'success':False, 'message':'event not found'}, 401
+        if isinstance(event_id, int) or isinstance(int(event_id), int):
+            event = DB.session.query(Event).get(event_id)
+            args = self.param.parse_args()
+            if event:
+                if args['name']:
+                    event.name = args['name']
+                if args['location']:
+                    event.location = args['location']
+                if args['category']:
+                    event.category = args['category']
+                if args['time']:
+                    event.time = args['time']
+                
+                DB.session.commit()
+                DB.session.refresh(event)
+                return {'success':True, 'payload':event_schema.dump(event)[0]}, 200
+            return {'success':False, 'message':'event not found'}, 401
+        return{'success':False, 'message':'invalid  event id'}
     @jwt_required
     def delete(self, event_id):
         """
@@ -452,17 +467,19 @@ class ManageEvents(EventParams, Resource):
             401:
                 description: Event could not be deleted
         """
-        event = Event.query.get(event_id)
-        rsvpslist = Rsvp.query.filter_by(event_id = event_id).all()
-        if bool(rsvpslist):
-            for rsvp in rsvpslist:
-                DB.session.delete(rsvp)
-            DB.session.commit()
-        if event:
-            DB.session.delete(event)
-            DB.session.commit()
-            return {'success': True, 'payload':{'id':event_id}}, 200
-        return {'success':False, 'message':'event not found'}, 401
+        if isinstance(event_id, int)or isinstance(int(event_id), int):
+            event = Event.query.get(event_id)
+            rsvpslist = Rsvp.query.filter_by(event_id = event_id).all()
+            if bool(rsvpslist):
+                for rsvp in rsvpslist:
+                    DB.session.delete(rsvp)
+                DB.session.commit()
+            if event:
+                DB.session.delete(event)
+                DB.session.commit()
+                return {'success': True, 'payload':{'id':event_id}}, 200
+            return {'success':False, 'message':'event not found'}, 401
+        return {'success':False, 'message':'invalid event id'}, 401
 
 class SearchEvent(SearchParam, Resource):
     """resource to carry out event searching"""
@@ -595,20 +612,22 @@ class ManageRsvp(RsvpParams, Resource):
         """
         args = self.param.parse_args()
         if validate_params(args):
-            rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
-            
-            if rsvp:
-                return {'success':False, 'message':'you already booked this event'}, 401
+            if validate_email(args['client_email']):
+                rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
+                
+                if rsvp:
+                    return {'success':False, 'message':'you already booked this event'}, 401
 
-            rsvp = Rsvp(event_id, args['client_email'])
-            DB.session.add(rsvp)
-            try:
-                DB.session.commit()
-            except IntegrityError:
-                return {'success':False, 'message':'Event does not exist'}, 401
+                rsvp = Rsvp(event_id, args['client_email'])
+                DB.session.add(rsvp)
+                try:
+                    DB.session.commit()
+                except IntegrityError:
+                    return {'success':False, 'message':'Event does not exist'}, 401
 
-            DB.session.refresh(rsvp)
-            return {'success':True, 'payload':{'id':rsvp.id}}, 201
+                DB.session.refresh(rsvp)
+                return {'success':True, 'payload':{'id':rsvp.id}}, 201
+            return {'success': False, 'message': 'ensure that the email provided is correct'}, 401
         return {'success':False, 'message':'please ensure that you have provided all the required details'}, 401
     @jwt_required
     def put(self, event_id):
@@ -643,13 +662,15 @@ class ManageRsvp(RsvpParams, Resource):
         """
         args = self.param.parse_args()
         if validate_params(args):
-            rsvp = Rsvp.query.filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
-            if rsvp:
-                rsvp.accepted = args['accept_status']
-                DB.session.commit()
-                DB.session.refresh(rsvp)
-                if rsvp.accepted:
-                    return {'success':True, 'payload':{'id':rsvp.id, 'status':'accepted'}}, 200
-                return {'success':True, 'payload':{'id':rsvp.id, 'status':'rejected'}}, 200
-            return {'success':False, 'message':'rsvp not found'}, 401
+            if isStringBool(args['accept_status']):
+                rsvp = Rsvp.query.filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
+                if rsvp:
+                    rsvp.accepted = args['accept_status']
+                    DB.session.commit()
+                    DB.session.refresh(rsvp)
+                    if rsvp.accepted:
+                        return {'success':True, 'payload':{'id':rsvp.id, 'status':'accepted'}}, 200
+                    return {'success':True, 'payload':{'id':rsvp.id, 'status':'rejected'}}, 200
+                return {'success':False, 'message':'rsvp not found'}, 401
+            return {'success': False, 'message': 'invalid entry ensure that accept_status field is valid'}, 401
         return {'success':False, 'message':'please ensure that you provide all the required fields'}, 401

@@ -80,6 +80,7 @@ class TestEvents(ApiTestCase):
 
         response = self.app.put('api/v2/events/'+event_id, data = self.event_data2, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
+        print(">>edit ", data)
         self.assertTrue(data.get('success'))
     def test_edit_non_existent_event(self):
         """test edit of an event that doesnt exist"""
