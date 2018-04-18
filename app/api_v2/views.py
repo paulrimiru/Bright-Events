@@ -12,7 +12,7 @@ from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
                               JWTMANAGER, event_schema, MAIL
 from flask_jwt_extended import jwt_required, create_access_token, \
-                                get_raw_jwt
+                                get_raw_jwt, jwt_optional, get_jwt_identity
 
 from sqlalchemy.exc import IntegrityError, InternalError
 from flask_mail import Message
@@ -26,7 +26,7 @@ def token_expiry_response():
     return jsonify({
         'status': False,
         'message': 'token provided is expired please login again'
-    })
+    }), 401
 
 def validate_email(email):
     """validates if the email provided is the correct email"""
@@ -75,11 +75,11 @@ def register_user(user_details):
                 try:
                     DB.session.commit()
                 except IntegrityError:
-                    return {'success': False, 'message':'email already in exists in the system'}, 406  
+                    return {'success': False, 'message':'email already in exists in the system'}, 403  
                 return {'id':user.id, 'username': user_details['username'], 'email':user_details['email']}, 201
-            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 406 
-        return {'success': False, 'message':passwor_val.get('message')}, 406
-    return {'success':False, 'message':'please ensure that all your details are provided'}, 406
+            return {'success': False, 'message':'Please provide a password of more than 6 characters long'}, 403
+        return {'success': False, 'message':passwor_val.get('message')}, 400
+    return {'success':False, 'message':'please ensure that all your details are provided'}, 403
 
 def login_user(user_details):
     """handles user login"""
@@ -264,6 +264,7 @@ def encoder(obj):
         return obj.isoformat()
 class Events(EventParams, Resource):
     """resource to perform event creation and retrieval"""
+    @jwt_optional
     def get(self):
         """
         Retreive all events
@@ -281,19 +282,32 @@ class Events(EventParams, Resource):
             401:
                 description: Events could not be retrieved
         """
+        current_user = get_jwt_identity()
         args = self.param.parse_args()
         page = args.get('page', 1)
         limit = args.get('limit', app_config['limit'])
         events = Event.query.paginate(page, limit, False)
-        myresult = events_schema.dump(events.items)
-        if bool(myresult.data):
+        user_events = None
+        user_events_next = ""
+        user_events_prev = ""
+        if current_user:
+            user_events = Event.query.filter_by(host=current_user.get('id')).paginate(page, limit, False)
+            if user_events.has_next:
+                next_url = API.url_for(Events, limit=args.get('limit'), page=user_events.next_num)
+            if user_events.has_prev:
+                previous_url = API.url_for(Events, limit=args.get('limit'), page=user_events.prev_num)
+        general_result = events_schema.dump(events.items)
+        users_result = events_schema.dump(user_events.items)
+        if bool(general_result.data):
             next_url=""
             previous_url=""
             if events.has_next:
                 next_url = API.url_for(Events, limit=args.get('limit'), page=events.next_num)
             if events.has_prev:
                 previous_url = API.url_for(Events, limit=args.get('limit'), page=events.prev_num)
-            return {'success':True,'page_navigation':{'next':next_url, 'previous':previous_url} ,'payload':{'event_list':myresult.data}}, 200
+            return {'success':True,'page_navigation':{'next':next_url, 'previous':previous_url}, 
+                    'user_navigation': { 'next': user_events_next, 'prev': user_events_prev } ,
+                    'payload':{ 'event_list':general_result.data ,'users_list': users_result.data} }, 200
         return {'success':False, 'message':'sorry no events at the momment'}, 401
 
     @jwt_required
