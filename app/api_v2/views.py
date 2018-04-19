@@ -296,8 +296,12 @@ class Events(EventParams, Resource):
                 next_url = API.url_for(Events, limit=args.get('limit'), page=user_events.next_num)
             if user_events.has_prev:
                 previous_url = API.url_for(Events, limit=args.get('limit'), page=user_events.prev_num)
-        general_result = events_schema.dump(events.items)
-        users_result = events_schema.dump(user_events.items)
+        general_result = []
+        users_result = []
+        if events:
+            general_result = events_schema.dump(events.items)
+        if user_events:
+            users_result = events_schema.dump(user_events.items)
         if bool(general_result.data):
             next_url=""
             previous_url=""
@@ -307,7 +311,7 @@ class Events(EventParams, Resource):
                 previous_url = API.url_for(Events, limit=args.get('limit'), page=events.prev_num)
             return {'success':True,'page_navigation':{'next':next_url, 'previous':previous_url}, 
                     'user_navigation': { 'next': user_events_next, 'prev': user_events_prev } ,
-                    'payload':{ 'event_list':general_result.data ,'users_list': users_result.data} }, 200
+                    'payload':{ 'event_list':general_result.data ,'users_list': users_result.data if users_result else [] } }, 200
         return {'success':False, 'message':'sorry no events at the momment'}, 401
 
     @jwt_required
