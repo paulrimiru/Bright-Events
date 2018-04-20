@@ -16,6 +16,7 @@ from flask_jwt_extended import jwt_required, create_access_token, \
 
 from sqlalchemy.exc import IntegrityError, InternalError
 from flask_mail import Message
+from flask_cors import cross_origin
 from instance.config import Config
 import json
 import datetime

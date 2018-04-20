@@ -12,7 +12,7 @@ from .api_v2 import api_v2
 from .api_v2.models import DB, BCRYPT, JWTMANAGER, MAIL
 from .api_v2.views import login_user, identity
 
-
+from flask_cors import CORS
 
 APP = Flask(__name__, instance_relative_config=True)
 

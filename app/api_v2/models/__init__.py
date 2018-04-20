@@ -6,6 +6,7 @@ from flask_jwt_extended import JWTManager
 from marshmallow import fields, Schema
 from flask_mail import Mail
 from sqlalchemy import event
+
 import uuid
 
 BCRYPT = Bcrypt()
