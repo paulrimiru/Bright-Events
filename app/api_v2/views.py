@@ -7,7 +7,7 @@ from instance.config import app_config
 from app.api_v1.utils.endpointparams import RegisterParams, LoginParams, \
                                             EventParams, \
                                             PasswordResetParams, RsvpParams, \
-                                            SearchParam 
+                                            SearchParam, RsvpManageParams 
 from app.api_v2.models import Users, Event, Rsvp, ResetPassword, DB, \
                               BCRYPT, events_schema, rsvp_schema, rsvps_schema, TokenBlackList, \
                               JWTMANAGER, event_schema, MAIL
@@ -608,6 +608,7 @@ class ManageRsvp(RsvpParams, Resource):
             return {'success':True, 'page_navigation':{'next':next_url, 'previous':previous_url}, 'payload':data}, 200
         return {'success':False, 'message':'there are no rsvps for that event'}, 401
 
+    @jwt_required
     def post(self, event_id):
         """
         Rsvp a particular event
@@ -619,35 +620,26 @@ class ManageRsvp(RsvpParams, Resource):
               name: event_id
               type: int
               required: true
-            - in: formData
-              name: client_email
-              type: string
-              required: true
         responses:
             201:
                 description: Rsvp added to event
             401:
                 description: Rsvp not added to event
         """
-        args = self.param.parse_args()
-        if validate_params(args):
-            if validate_email(args['client_email']):
-                rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == args['client_email']).first()
-                
-                if rsvp:
-                    return {'success':False, 'message':'you already booked this event'}, 401
+        user  = get_jwt_identity()
+        rsvp = DB.session.query(Rsvp).filter(Rsvp.event_id == event_id).filter(Rsvp.email == user.get('email')).first()
+        if rsvp:
+            return {'success':False, 'message':'you already booked this event'}, 401
 
-                rsvp = Rsvp(event_id, args['client_email'])
-                DB.session.add(rsvp)
-                try:
-                    DB.session.commit()
-                except IntegrityError:
-                    return {'success':False, 'message':'Event does not exist'}, 401
+        rsvp = Rsvp(event_id, user.get('email'))
+        DB.session.add(rsvp)
+        try:
+            DB.session.commit()
+        except IntegrityError:
+            return {'success':False, 'message':'Event does not exist'}, 401
 
-                DB.session.refresh(rsvp)
-                return {'success':True, 'payload':{'id':rsvp.id}}, 201
-            return {'success': False, 'message': 'ensure that the email provided is correct'}, 401
-        return {'success':False, 'message':'please ensure that you have provided all the required details'}, 401
+        DB.session.refresh(rsvp)
+        return {'success':True, 'payload':{'id':rsvp.id}}, 201
     @jwt_required
     def put(self, event_id):
         """
@@ -693,3 +685,41 @@ class ManageRsvp(RsvpParams, Resource):
                 return {'success':False, 'message':'rsvp not found'}, 401
             return {'success': False, 'message': 'invalid entry ensure that accept_status field is valid'}, 401
         return {'success':False, 'message':'please ensure that you provide all the required fields'}, 401
+
+class RsvpManage(RsvpManageParams, Resource):
+    """Class handles management of rsvp by users"""
+    @jwt_required
+    def get(self):
+        """Retrieves rsvps for a certain user"""
+        user = get_jwt_identity()
+        rsvp_list = Rsvp.query.filter(Rsvp.email == user.get('email')).all()
+        if rsvp_list:
+            return {'success': True, 'payload': {'rsvp_list': rsvps_schema.dump (rsvp_list)}}, 200
+        return {'success': False, 'message': 'Sorry you havent reserved any events yet'}, 401
+    
+    @jwt_required
+    def delete(self):
+        """Deletes an rsvp from a certain user"""
+        user = get_jwt_identity()
+        args = self.param.parse_args()
+        rsvp = Rsvp.query.filter(Rsvp.email == user.get('email')).filter(Rsvp.event_id == args.get('event_id')).first()
+        if rsvp:
+            DB.session.delete(rsvp)
+            DB.session.commit()
+            return {'success': True, 'payload': 'rsvp deleted'}, 200
+        return {'success': False, 'payload': 'rsvp not found'}, 401
+    
+    @jwt_required
+    def put(self):
+        """Toogle an rsvp attendace for a user"""
+        user = get_jwt_identity()
+        args = self.param.parse_args()
+        rsvp = Rsvp.query.filter(Rsvp.email == user.get('email')).filter(Rsvp.event_id == args.get('event_id')).first()
+        if rsvp:
+            rsvp.attendance = args.get('attendace')
+            DB.session.commit()
+            DB.session.refresh(rsvp)
+            if rsvp.attendance:
+                return {'success': True, 'payload': 'we are glad you are coming see you there'}, 201
+            return {'success': True, 'payload': 'we hope you will be able to attend the next one'}, 201
+        return {'success': False, 'message':'sorry we couldnt find your reservation'}

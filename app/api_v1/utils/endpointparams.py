@@ -78,3 +78,10 @@ class SearchParam(object):
     param.add_argument('q', type=str, required=True, help="please provide a name to search")
     param.add_argument('category', type=str, required=False)
     param.add_argument('location', type=str, required=False)
+class RsvpManageParams(object):
+    """
+    V2 rsvp manage params
+    """
+    param = reqparse.RequestParser()
+    param.add_argument('event_id', type=str, required=False)
+    param.add_argument('attendance', type=bool, required=False)

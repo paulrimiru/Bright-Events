@@ -25,7 +25,7 @@ class TestEvents(ApiTestCase):
         'host':2,
         'category':'1'
     }
-
+    
     rsvp_user1 = {'client_email':'test1@email.com'}
     rsvp_user2 = {'client_email':'test2@email.com'}
     token = "abc"
@@ -126,12 +126,12 @@ class TestEvents(ApiTestCase):
         data = self.create_event()
         event_id = data.get('payload').get('event_id')
 
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
     def test_rsvp_non_existent_event(self):
         """test reserving events that do not exist"""
-        response = self.app.post('api/v2/event/2/rsvp', data = self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('api/v2/event/2/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertFalse(data.get('success'))
     
@@ -140,11 +140,7 @@ class TestEvents(ApiTestCase):
         data = self.create_event()
         event_id = data.get('payload').get('event_id')
         
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
-        data = json.loads(response.data.decode('utf-8'))
-        self.assertTrue(data.get('success'))
-
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user2, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
@@ -153,11 +149,11 @@ class TestEvents(ApiTestCase):
         data = self.create_event()
         event_id = data.get('payload').get('event_id')
         
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertFalse(data.get('success'))
 
@@ -166,11 +162,7 @@ class TestEvents(ApiTestCase):
         data = self.create_event()
         event_id = data.get('payload').get('event_id')
         
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
-        data = json.loads(response.data.decode('utf-8'))
-        self.assertTrue(data.get('success'))
-
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user2, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
@@ -182,13 +174,12 @@ class TestEvents(ApiTestCase):
         """test accepting reservation of on private event"""
         data = self.create_event()
         event_id = data.get('payload').get('event_id')
-        print(">>>>",data.get('payload'))
         
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test1@email.com','accept_status':True}, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test@email.com','accept_status':True}, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
     def test_reject_rsvp(self):
@@ -197,15 +188,15 @@ class TestEvents(ApiTestCase):
 
         event_id = data.get('payload').get('event_id')
         
-        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data=self.rsvp_user1, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test@email.com','accept_status':True}, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test1@email.com','accept_status':True}, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test@email.com','accept_status':True}, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
 
-        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test1@email.com','accept_status':False}, headers={'Authorization':' Bearer '+self.token})
+        response = self.app.put('/api/v2/event/'+event_id+'/rsvp', data={'client_email':'test@email.com','accept_status':False}, headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
         self.assertTrue(data.get('success'))
     def test_filter_by_location(self):
@@ -241,3 +232,44 @@ class TestEvents(ApiTestCase):
             self.assertEqual(1, len(data.get('payload').get('event_list')))
             self.assertEqual('1', event.get('category'))
             self.assertEqual('Nairobi', event.get('location'))
+
+    def test_deleting_rsvp(self):
+        """test deleting of rsvps"""
+        data = self.create_event()
+        event_id = data.get('payload').get('event_id')
+        
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', data={'client_email': 'test@email.com'}, headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+
+        response = self.app.get('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+
+        response = self.app.delete('/api/v2/events/rsvp', headers={'Authorization':' Bearer '+self.token}, data={'event_id': event_id})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+    def test_get_eser_rsvps(self):
+        """test retrieve user rsvp list"""
+        data = self.create_event()
+        event_id = data.get('payload').get('event_id')
+        
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+
+        response = self.app.get('/api/v2/events/rsvp', headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+    def test_user_change_attendance(self):
+        """test a user can change their attendace"""
+        data = self.create_event()
+        event_id = data.get('payload').get('event_id')
+
+        response = self.app.post('/api/v2/event/'+event_id+'/rsvp', headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(data.get('success'))
+
+        response = self.app.put('/api/v2/events/rsvp', data= {'event_id': event_id, 'attendace': False},headers={'Authorization':' Bearer '+self.token})
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertEqual('we hope you will be able to attend the next one', data.get('payload'))

@@ -94,19 +94,22 @@ class Rsvp(DB.Model):
     event_id = DB.Column(DB.Integer(), DB.ForeignKey('event.id'), nullable=False)
     email = DB.Column(DB.String(255))
     accepted = DB.Column(DB.Boolean(), default=True)
+    attendance = DB.Column(DB.Boolean(), default=True)
     date_created = DB.Column(DB.DateTime(), default=datetime.now())
     date_modified = DB.Column(DB.DateTime(), default=datetime.now())
 
-    def __init__(self,event_id, email, accepted=True):
+    def __init__(self,event_id, email, accepted=True, attendance=True):
         self.event_id = event_id
         self.email = email
         self.accepted = accepted
+        self.attendance = attendance
 class RsvpSchema(Schema):
     """schema for rsvps"""
     id = fields.Int(dump_only=True)
     event_id = fields.Int(as_string=True)
     email = fields.Str()
     accepted = fields.Bool()
+    attendance = fields.Bool()
 
     
 rsvps_schema = RsvpSchema(many=True)
