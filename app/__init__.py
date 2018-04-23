@@ -15,7 +15,7 @@ from .api_v2.views import login_user, identity
 from flask_cors import CORS
 
 APP = Flask(__name__, instance_relative_config=True)
-
+CORS(APP)
 
 APP.config.from_object(app_config['development'])
 APP.config.from_pyfile("config.py")
