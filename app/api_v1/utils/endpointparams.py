@@ -75,7 +75,7 @@ class SearchParam(object):
     V2 filter params
     """
     param = reqparse.RequestParser()
-    param.add_argument('q', type=str, required=True, help="please provide a name to search")
+    param.add_argument('q', type=str, required=False)
     param.add_argument('category', type=str, required=False)
     param.add_argument('location', type=str, required=False)
 class RsvpManageParams(object):

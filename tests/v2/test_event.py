@@ -272,4 +272,4 @@ class TestEvents(ApiTestCase):
 
         response = self.app.put('/api/v2/events/rsvp', data= {'event_id': event_id, 'attendace': False},headers={'Authorization':' Bearer '+self.token})
         data = json.loads(response.data.decode('utf-8'))
-        self.assertEqual('we hope you will be able to attend the next one', data.get('payload'))
+        self.assertTrue(data.get('success'))

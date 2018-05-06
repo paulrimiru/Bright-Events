@@ -15,12 +15,18 @@ from flask_jwt_extended import jwt_required, create_access_token, \
                                 get_raw_jwt, jwt_optional, get_jwt_identity
 
 from sqlalchemy.exc import IntegrityError, InternalError
+from sqlalchemy import inspect
 from flask_mail import Message
 from flask_cors import cross_origin
 from instance.config import Config
 import json
 import datetime
 import re
+
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key)
+            for c in inspect(obj).mapper.column_attrs}
 
 @JWTMANAGER.expired_token_loader
 def token_expiry_response():
@@ -44,19 +50,20 @@ def validate_password(password):
     digit_reg = re.compile(r'[0-9]')
     special_reg = re.compile(r'[!@#$%&*]')
 
-    if length_reg.search(password):
-        if uppercase_reg.search(password):
-            if lowercase_reg.search(password):
-                if digit_reg.search(password):
-                    if special_reg.search(password):
-                        if repetitve_reg.search(password):
-                            return {'success':True}
-                        return {'success':False, 'message':'password must not  contain repetitive letters characters'}
-                    return {'success':False, 'message':'password must contain special characters'}
-                return {'success':False, 'message':'password must contain sa digit'}
-            return {'success':False, 'message':'password must contain lower case characters'}
-        return {'success':False, 'message':'password must contain upper case characters'}
-    return {'success':False, 'message':'password must be six characters or longer'}
+    if not length_reg.search(password):
+        return {'success': False, 'message': 'password must be six characters or longer'}
+    elif not uppercase_reg.search(password):
+        return {'success': False, 'message': 'password must contain upper case characters'}
+    elif not lowercase_reg.search(password):
+        return {'success': False, 'message': 'password must contain lower case characters'}
+    elif not digit_reg.search(password):
+        return {'success': False, 'message': 'password must contain sa digit'}
+    elif not special_reg.search(password):
+        return {'success': False, 'message': 'password must contain special characters'}
+    elif not repetitve_reg.search(password):
+        return {'success': False, 'message': 'password must not  contain repetitive letters characters'}
+    return {'success':True}
+    
 def validate_params(params):
     """validates thet params passed are not empty"""
     for param in params:
@@ -88,7 +95,7 @@ def login_user(user_details):
         if validate_email(user_details['email']):
             user = DB.session.query(Users).filter(Users.email == user_details['email']).first()
             if user and BCRYPT.check_password_hash(user.password, user_details['password']):
-                return {'success':True, 'payload':{'user_id':user.id, 'token':create_access_token({'id':user.id, 'email': user.email}, expires_delta=datetime.timedelta(days=1))}}, 200
+                return {'success':True, 'payload':{'user_id':user.id, 'token':create_access_token({'id':user.id, 'email': user.email, 'username': user.username}, expires_delta=datetime.timedelta(days=1))}}, 200
             return {'success': False, 'message':'Invalid credentials'}, 401
         return {'success': False, 'message':'please provide a valid email'}, 409 
     return {'success':True, 'message':'please ensure that you provide all your details'}, 409
@@ -692,9 +699,19 @@ class RsvpManage(RsvpManageParams, Resource):
     def get(self):
         """Retrieves rsvps for a certain user"""
         user = get_jwt_identity()
-        rsvp_list = Rsvp.query.filter(Rsvp.email == user.get('email')).all()
+        rsvp_list = rsvps_schema.dump(Rsvp.query.filter(Rsvp.email == user.get('email')).all()).data
         if rsvp_list:
-            return {'success': True, 'payload': {'rsvp_list': rsvps_schema.dump (rsvp_list)}}, 200
+            event_list = {}
+            event_ids = []
+            for rsvp in rsvp_list:
+                event_ids.append(rsvp['event_id'])
+            event_list = events_schema.dump(Event.query.filter(Event.id.in_(event_ids))).data
+            for event in event_list:
+                for rsvp in rsvp_list:
+                    if str(rsvp['event_id']) != str(event['id']):
+                        continue;
+                    event.update({'accepted':rsvp.get('accepted'), 'attendance': rsvp.get('attendance')})
+            return {'success': True, 'payload': {'events': event_list}}, 200
         return {'success': False, 'message': 'Sorry you havent reserved any events yet'}, 401
     
     @jwt_required
@@ -706,7 +723,7 @@ class RsvpManage(RsvpManageParams, Resource):
         if rsvp:
             DB.session.delete(rsvp)
             DB.session.commit()
-            return {'success': True, 'payload': 'rsvp deleted'}, 200
+            return {'success': True, 'payload': {'id': rsvp.id, 'event_id': rsvp.event_id}}, 200
         return {'success': False, 'payload': 'rsvp not found'}, 401
     
     @jwt_required
@@ -716,10 +733,10 @@ class RsvpManage(RsvpManageParams, Resource):
         args = self.param.parse_args()
         rsvp = Rsvp.query.filter(Rsvp.email == user.get('email')).filter(Rsvp.event_id == args.get('event_id')).first()
         if rsvp:
-            rsvp.attendance = args.get('attendace')
+            rsvp.attendance = args.get('attendance')
             DB.session.commit()
             DB.session.refresh(rsvp)
             if rsvp.attendance:
-                return {'success': True, 'payload': 'we are glad you are coming see you there'}, 201
-            return {'success': True, 'payload': 'we hope you will be able to attend the next one'}, 201
+                return {'success': True, 'payload': {'id': rsvp.id, 'event_id': rsvp.event_id, 'attendance': rsvp.attendance}}, 201
+            return {'success': True, 'payload': {'id': rsvp.id, 'event_id': rsvp.event_id, 'attendance': rsvp.attendance}}, 201
         return {'success': False, 'message':'sorry we couldnt find your reservation'}
