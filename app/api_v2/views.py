@@ -75,9 +75,8 @@ def register_user(user_details):
     print(user_details)
     if user_details['email'] and user_details['password'] and user_details['username']:
         passwor_val = validate_password(user_details['password'])
-
         if passwor_val.get('success'):
-            if validate_password(user_details['password']):
+            if validate_email(user_details['email']):
                 user = Users(user_details['username'], user_details['email'], user_details['password'])
                 DB.session.add(user)
                 try:
